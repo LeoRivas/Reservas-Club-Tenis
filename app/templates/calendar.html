@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Calendario de Reservas</h1>
+
+<div class="form-group">
+    <label for="date">Selecciona una fecha:</label>
+    <input type="date" id="date" name="date" value="{{ date }}" class="form-control">
+    <button type="button" onclick="updateCalendar()" class="btn btn-primary mt-2">Buscar</button>
+</div>
+
+<div class="table-responsive mt-3">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Hora</th>
+                {% for court in courts %}
+                <th>{{ court.name }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for time in times %}
+            <tr>
+                <td>{{ time }}</td>
+                {% for court in courts %}
+                <td>
+                    {% for reservation in reservations %}
+                        {% if reservation.court_id == court.id and reservation.start_time.strftime('%H:%M') <= time < reservation.end_time.strftime('%H:%M') %}
+                            <div class="reservation" style="background-color: {{ reservation.color }};">
+                                <strong>{{ reservation.user.username }}</strong><br>
+                                {{ reservation.use_type }}<br>
+                                {{ reservation.players }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function updateCalendar() {
+    var date = document.getElementById('date').value;
+    window.location.href = '/calendar?date=' + date;
+}
+</script>
+
+{% endblock %}

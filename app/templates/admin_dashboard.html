@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Panel de Administración</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Resumen General</h5>
+                    <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                        {{ form_general.hidden_tag() }}
+                        {{ form_general.start_date.label }} {{ form_general.start_date(class="form-control") }}
+                        {{ form_general.end_date.label }} {{ form_general.end_date(class="form-control") }}
+                        {{ form_general.use_type.label }} {{ form_general.use_type(class="form-control") }}
+                        {{ form_general.submit(class="btn btn-primary mt-2") }}
+                    </form>
+                    <p>Total de horas ocupadas: {{ total_hours }}</p>
+                    <p>Ingresos totales: ${{ total_income }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ingresos por Tipo de Uso</h5>
+                    <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                        {{ form_ingresos.hidden_tag() }}
+                        {{ form_ingresos.start_date.label }} {{ form_ingresos.start_date(class="form-control") }}
+                        {{ form_ingresos.end_date.label }} {{ form_ingresos.end_date(class="form-control") }}
+                        {{ form_ingresos.submit(class="btn btn-primary mt-2") }}
+                    </form>
+                    {% for use_type, income in income_by_use_type.items() %}
+                        <p>{{ use_type }}: ${{ income }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Reservas No Pagadas</h5>
+                    <form method="POST" action="{{ url_for('admin_dashboard') }}">
+                        {{ form_no_pagadas.hidden_tag() }}
+                        {{ form_no_pagadas.start_date.label }} {{ form_no_pagadas.start_date(class="form-control") }}
+                        {{ form_no_pagadas.end_date.label }} {{ form_no_pagadas.end_date(class="form-control") }}
+                        {{ form_no_pagadas.use_type.label }} {{ form_no_pagadas.use_type(class="form-control") }}
+                        {{ form_no_pagadas.submit(class="btn btn-primary mt-2") }}
+                    </form>
+                    <table class="table mt-2">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Hora de inicio</th>
+                                <th>Hora de fin</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reservation in unpaid_reservations %}
+                                <tr>
+                                    <td>{{ reservation.id }}</td>
+                                    <td>{{ reservation.date }}</td>
+                                    <td>{{ reservation.start_time }}</td>
+                                    <td>{{ reservation.end_time }}</td>
+                                    <td>{{ reservation.user.username }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

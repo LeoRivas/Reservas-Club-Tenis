@@ -1,0 +1,21 @@
+body {
+    padding-top: 56px;
+}
+
+.table {
+    margin-top: 20px;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+.reservation {
+    padding: 5px;
+    margin: 2px;
+    border-radius: 5px;
+    color: #fff;
+    text-align: center;
+}
+
+
