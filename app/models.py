@@ -53,6 +53,6 @@ class Reservation(db.Model):
     comments = db.Column(db.Text, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('reservations', lazy=True))
-
+    
     def __repr__(self):
-        return f'<Reservation {self.id} {self.court_id}>'
+        return f'<Reservation {self.id} {self.court.name}>'

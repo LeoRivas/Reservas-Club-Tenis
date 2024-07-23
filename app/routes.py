@@ -173,9 +173,21 @@ def admin_dashboard():
                 income_by_use_type[reservation.use_type] += reservation.payment_amount
         
         unpaid_reservations = filtered_reservations.filter_by(is_paid=False).all()
+    else:
+        filtered_reservations = reservations
     
-    return render_template('admin_dashboard.html', title='Panel de Administración', form_general=form_general, form_ingresos=form_ingresos, form_no_pagadas=form_no_pagadas, reservations=reservations, total_hours=total_hours, total_income=total_income, income_by_use_type=income_by_use_type, unpaid_reservations=unpaid_reservations)
-
+    return render_template(
+        'admin_dashboard.html', 
+        title='Panel de Administración', 
+        form_general=form_general, 
+        form_ingresos=form_ingresos, 
+        form_no_pagadas=form_no_pagadas, 
+        reservations=filtered_reservations, 
+        total_hours=total_hours, 
+        total_income=total_income, 
+        income_by_use_type=income_by_use_type, 
+        unpaid_reservations=unpaid_reservations
+    )
 @app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_reservation(id):
