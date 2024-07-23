@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, DateField, TimeField, DecimalField, TextAreaField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, DateField, TimeField, DecimalField, TextAreaField, IntegerField, SubmitField, DateTimeField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, NumberRange, Optional, Length
 from datetime import time
 from app.models import User, Court, Reservation
@@ -29,11 +29,21 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
-class AdminEditReservationForm(FlaskForm):
-    is_paid = BooleanField('Pagado')
-    payment_amount = DecimalField('Monto de Pago', places=2)
+class EditReservationForm(FlaskForm):
+    admin_name = StringField('Admin', render_kw={'readonly': True})
+    court_id = SelectField('Cancha', coerce=int, validators=[DataRequired()])
+    date = DateField('Fecha', validators=[DataRequired()])
+    start_time = TimeField('Hora de Inicio', validators=[DataRequired()])
+    end_time = TimeField('Hora de Fin', validators=[DataRequired()])
+    is_paid = BooleanField('¿Pagado?')
+    payment_amount = DecimalField('Monto del Pago')
     comments = TextAreaField('Comentarios')
     submit = SubmitField('Guardar')
+
+    def __init__(self, *args, **kwargs):
+        super(EditReservationForm, self).__init__(*args, **kwargs)
+        self.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+
 
 class DateRangeForm(FlaskForm):
     start_date = DateField('Fecha de inicio', format='%Y-%m-%d', validators=[DataRequired()])

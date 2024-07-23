@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request, make_response
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, ReservationForm, AdminEditReservationForm, DateRangeForm, FormGeneral, FormIngresos, FormNoPagadas
+from app.forms import LoginForm, RegistrationForm, ReservationForm, EditReservationForm, DateRangeForm, FormGeneral, FormIngresos, FormNoPagadas
 from app.models import User, Reservation, Court
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
@@ -179,34 +179,36 @@ def admin_dashboard():
 @app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_reservation(id):
-    if not current_user.is_admin:
-        flash('No tienes permiso para acceder a esta página.')
-        return redirect(url_for('index'))
-    
     reservation = Reservation.query.get_or_404(id)
-    form = AdminEditReservationForm(obj=reservation)
+    form = EditReservationForm(obj=reservation)
+    if request.method == 'GET':
+        form.admin_name.data = current_user.username  # Set admin name to current user's username
     if form.validate_on_submit():
+        reservation.court_id = form.court_id.data
+        reservation.date = form.date.data
+        reservation.start_time = form.start_time.data
+        reservation.end_time = form.end_time.data
         reservation.is_paid = form.is_paid.data
         reservation.payment_amount = form.payment_amount.data
         reservation.comments = form.comments.data
         db.session.commit()
-        flash('¡Reserva actualizada con éxito!', 'success')
+        flash('Reserva actualizada con éxito')
         return redirect(url_for('admin_dashboard'))
-    
-    return render_template('edit_reservation.html', title='Editar Reserva', form=form, reservation=reservation)
+    return render_template('edit_reservation.html', form=form, reservation=reservation)
 
 @app.route('/delete_reservation/<int:id>', methods=['POST'])
 @login_required
 def delete_reservation(id):
-    if not current_user.is_admin:
-        flash('No tienes permiso para acceder a esta página.')
-        return redirect(url_for('index'))
-    
     reservation = Reservation.query.get_or_404(id)
+    if not current_user.is_admin:
+        flash('No tienes permisos para acceder a esta página.')
+        return redirect(url_for('index'))
     db.session.delete(reservation)
     db.session.commit()
-    flash('¡Reserva eliminada con éxito!', 'success')
+    flash('Reserva eliminada correctamente.')
     return redirect(url_for('admin_dashboard'))
+
+
 
 @app.route('/export_reservations', methods=['GET'])
 @login_required
