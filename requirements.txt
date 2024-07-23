@@ -6,3 +6,5 @@ Flask-WTF
 python-dotenv
 email-validator
 Flask-Bootstrap
+gunicorn
+psycopg2-binary
