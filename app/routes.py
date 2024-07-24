@@ -188,26 +188,6 @@ def admin_dashboard():
         income_by_use_type=income_by_use_type, 
         unpaid_reservations=unpaid_reservations
     )
-@app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_reservation(id):
-    reservation = Reservation.query.get_or_404(id)
-    form = EditReservationForm(obj=reservation)
-    if request.method == 'GET':
-        form.admin_name.data = current_user.username  # Set admin name to current user's username
-    if form.validate_on_submit():
-        reservation.court_id = form.court_id.data
-        reservation.date = form.date.data
-        reservation.start_time = form.start_time.data
-        reservation.end_time = form.end_time.data
-        reservation.is_paid = form.is_paid.data
-        reservation.payment_amount = form.payment_amount.data
-        reservation.comments = form.comments.data
-        db.session.commit()
-        flash('Reserva actualizada con éxito')
-        return redirect(url_for('admin_dashboard'))
-    return render_template('edit_reservation.html', form=form, reservation=reservation)
-
 
 
 @app.route('/export_reservations', methods=['GET'])
@@ -233,20 +213,48 @@ def export_reservations():
 @app.route('/my_reservations', methods=['GET'])
 @login_required
 def my_reservations():
-    user_reservations = Reservation.query.filter_by(user_id=current_user.id).all()
-    return render_template('user_reservations.html', reservations=user_reservations)
+    reservations = Reservation.query.filter_by(user_id=current_user.id).all()
+    return render_template('user_reservations.html', reservations=reservations)
 
-@app.route('/delete_reservation/<int:reservation_id>', methods=['POST'])
+@app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
-def delete_reservation(reservation_id):
-    reservation = Reservation.query.get_or_404(reservation_id)
-    if reservation.user_id != current_user.id and not current_user.is_admin:
-        flash('No tienes permiso para eliminar esta reserva.')
+def edit_reservation(id):
+    reservation = Reservation.query.get_or_404(id)
+    form = EditReservationForm(obj=reservation)
+    if form.validate_on_submit():
+        form.populate_obj(reservation)
+        db.session.commit()
+        flash('Reserva actualizada con éxito.')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('edit_reservation.html', form=form, reservation=reservation)
+
+
+    form = EditReservationForm(obj=reservation)
+    if form.validate_on_submit():
+        reservation.date = form.date.data
+        reservation.start_time = form.start_time.data
+        reservation.end_time = form.end_time.data
+        reservation.use_type = form.use_type.data
+        reservation.game_type = form.game_type.data
+        reservation.league_category = form.league_category.data
+        reservation.player1 = form.player1.data
+        reservation.player1_is_member = form.player1_is_member.data
+        reservation.player2 = form.player2.data
+        reservation.player2_is_member = form.player2_is_member.data
+        reservation.player3 = form.player3.data
+        reservation.player3_is_member = form.player3_is_member.data
+        reservation.player4 = form.player4.data
+        reservation.player4_is_member = form.player4_is_member.data
+        reservation.trainer = form.trainer.data
+        reservation.elite_category = form.elite_category.data
+        reservation.academy_category = form.academy_category.data
+        reservation.is_paid = form.is_paid.data
+        reservation.payment_amount = form.payment_amount.data
+        reservation.comments = form.comments.data
+        db.session.commit()
+        flash('Reserva actualizada correctamente.')
         return redirect(url_for('my_reservations'))
 
-    db.session.delete(reservation)
-    db.session.commit()
-    flash('La reserva ha sido eliminada.')
-    return redirect(url_for('my_reservations'))
+    return render_template('edit_reservation.html', form=form, reservation=reservation)
 
 
