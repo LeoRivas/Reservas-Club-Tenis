@@ -208,18 +208,6 @@ def edit_reservation(id):
         return redirect(url_for('admin_dashboard'))
     return render_template('edit_reservation.html', form=form, reservation=reservation)
 
-@app.route('/delete_reservation/<int:id>', methods=['POST'])
-@login_required
-def delete_reservation(id):
-    reservation = Reservation.query.get_or_404(id)
-    if not current_user.is_admin:
-        flash('No tienes permisos para acceder a esta página.')
-        return redirect(url_for('index'))
-    db.session.delete(reservation)
-    db.session.commit()
-    flash('Reserva eliminada correctamente.')
-    return redirect(url_for('admin_dashboard'))
-
 
 
 @app.route('/export_reservations', methods=['GET'])
@@ -241,3 +229,24 @@ def export_reservations():
     output.headers["Content-Disposition"] = "attachment; filename=reservas.csv"
     output.headers["Content-type"] = "text/csv"
     return output
+
+@app.route('/my_reservations', methods=['GET'])
+@login_required
+def my_reservations():
+    user_reservations = Reservation.query.filter_by(user_id=current_user.id).all()
+    return render_template('user_reservations.html', reservations=user_reservations)
+
+@app.route('/delete_reservation/<int:reservation_id>', methods=['POST'])
+@login_required
+def delete_reservation(reservation_id):
+    reservation = Reservation.query.get_or_404(reservation_id)
+    if reservation.user_id != current_user.id and not current_user.is_admin:
+        flash('No tienes permiso para eliminar esta reserva.')
+        return redirect(url_for('my_reservations'))
+
+    db.session.delete(reservation)
+    db.session.commit()
+    flash('La reserva ha sido eliminada.')
+    return redirect(url_for('my_reservations'))
+
+
