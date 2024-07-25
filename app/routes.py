@@ -58,7 +58,7 @@ def register():
 def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
-        start_time = form.start_time.data
+        start_time = datetime.strptime(form.start_time.data, "%H:%M").time()
         use_type = form.use_type.data
 
         # Calcular la hora de término basada en el tipo de uso
@@ -96,15 +96,10 @@ def reserve():
         flash('Reserva creada con éxito.')
         return redirect(url_for('index'))
     else:
-        if form.date.data and form.start_time.data:
-            form.court_id.choices = [(court['id'], court['name']) for court in get_available_courts(form.date.data.strftime('%Y-%m-%d'), form.start_time.data)]
-        else:
-            form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
-        
-        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(form.date.data, form.court_id.data, form.use_type.data)]
-    
+        form.date.data = datetime.today().date()
+        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(datetime.today().date(), None, None)]
+        form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     return render_template('reservation.html', form=form)
-    
 
 @app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
