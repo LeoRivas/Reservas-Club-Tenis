@@ -165,7 +165,6 @@ def edit_reservation(reservation_id):
         reservation.is_paid = form.is_paid.data
         reservation.payment_amount = form.payment_amount.data
         reservation.comments = form.comments.data
-        reservation.user_id = current_user.id
 
         db.session.commit()
         flash('Reserva actualizada con éxito.')
@@ -184,6 +183,7 @@ def edit_reservation(reservation_id):
         form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in available_times]
 
     return render_template('reservation.html', form=form, edit=True)
+
     
 @app.route('/calendar', methods=['GET', 'POST'])
 def calendar():
@@ -376,10 +376,12 @@ def edit_reservation_user(reservation_id):
 
     return render_template('reservation.html', form=form, edit=True)
 
-@app.route('/delete_reservation/<int:id>', methods=['POST'])
+@app.route('/delete_reservation/<int:reservation_id>', methods=['POST'])
 @login_required
-def delete_reservation(id):
-    reservation = Reservation.query.get_or_404(id)
+def delete_reservation(reservation_id):
+    reservation = Reservation.query.get_or_404(reservation_id)
+    
+    # Verificar que el usuario actual es el propietario de la reserva o un administrador
     if reservation.user_id != current_user.id and not current_user.is_admin:
         flash('No tienes permiso para eliminar esta reserva.')
         return redirect(url_for('index'))
@@ -387,5 +389,4 @@ def delete_reservation(id):
     db.session.delete(reservation)
     db.session.commit()
     flash('Reserva eliminada con éxito.')
-    return redirect(url_for('admin_dashboard' if current_user.is_admin else 'my_reservations'))
-
+    return redirect(url_for('index'))
