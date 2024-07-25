@@ -98,8 +98,10 @@ def reserve():
             flash('Reserva creada con éxito.')
             return redirect(url_for('index'))
     else:
+        form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
         # Obtener los tiempos disponibles
         form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(datetime.today(), form.court_id.data, form.use_type.data)]
+
     
     return render_template('reservation.html', form=form)
 
