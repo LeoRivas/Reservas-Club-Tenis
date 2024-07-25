@@ -256,7 +256,7 @@ def edit_reservation(id):
         return redirect(url_for('my_reservations'))
 
     return render_template('edit_reservation.html', form=form, reservation=reservation)
-    
+
 @app.route('/delete_reservation/<int:id>', methods=['POST'])
 @login_required
 def delete_reservation(id):
@@ -265,4 +265,53 @@ def delete_reservation(id):
     db.session.commit()
     flash('Reserva eliminada con éxito.')
     return redirect(url_for('admin_dashboard'))
+
+@app.route('/edit_reservation_user/<int:reservation_id>', methods=['GET', 'POST'])
+@login_required
+def edit_reservation_user(reservation_id):
+    reservation = Reservation.query.get_or_404(reservation_id)
+    if reservation.user_id != current_user.id:
+        flash('No tienes permiso para editar esta reserva.')
+        return redirect(url_for('my_reservations'))
+    
+    form = EditReservationForm()
+    if form.validate_on_submit():
+        reservation.date = form.date.data
+        reservation.start_time = form.start_time.data
+        reservation.end_time = form.end_time.data
+        reservation.use_type = form.use_type.data
+        reservation.game_type = form.game_type.data
+        reservation.league_category = form.league_category.data
+        reservation.player1 = form.player1.data
+        reservation.player2 = form.player2.data
+        reservation.player3 = form.player3.data
+        reservation.player4 = form.player4.data
+        reservation.trainer = form.trainer.data
+        reservation.elite_category = form.elite_category.data
+        reservation.academy_category = form.academy_category.data
+        reservation.is_paid = form.is_paid.data
+        reservation.payment_amount = form.payment_amount.data
+        reservation.comments = form.comments.data
+        db.session.commit()
+        flash('Reserva actualizada con éxito.')
+        return redirect(url_for('my_reservations'))
+    elif request.method == 'GET':
+        form.date.data = reservation.date
+        form.start_time.data = reservation.start_time
+        form.end_time.data = reservation.end_time
+        form.use_type.data = reservation.use_type
+        form.game_type.data = reservation.game_type
+        form.league_category.data = reservation.league_category
+        form.player1.data = reservation.player1
+        form.player2.data = reservation.player2
+        form.player3.data = reservation.player3
+        form.player4.data = reservation.player4
+        form.trainer.data = reservation.trainer
+        form.elite_category.data = reservation.elite_category
+        form.academy_category.data = reservation.academy_category
+        form.is_paid.data = reservation.is_paid
+        form.payment_amount.data = reservation.payment_amount
+        form.comments.data = reservation.comments
+    return render_template('edit_reservation.html', title='Editar Reserva', form=form)
+    
 

@@ -24,8 +24,7 @@
             <td>{{ reservation.end_time }}</td>
             <td>{{ reservation.use_type }}</td>
             <td>
-                <a href="{{ url_for('edit_reservation_user', reservation_id=reservation.id) }}" class="btn btn-primary btn-sm">Editar</a>
-                <a href="{{ url_for('delete_reservation', reservation_id=reservation.id) }}" class="btn btn-danger btn-sm">Eliminar</a>
+                <a href="{{ url_for('edit_reservation_user', reservation_id=reservation.id) }}" class="btn btn-primary btn-sm">Editar</a>            
             </td>
         </tr>
         {% endfor %}
