@@ -1,7 +1,11 @@
 from datetime import datetime, time, timedelta
 from app.models import Court, Reservation
 
+
 def get_available_times(date, court_id, use_type):
+    if date is None:
+        return []
+
     # Horarios del club
     weekday_hours = [(8, 30), (23, 0)]
     saturday_hours = [(8, 30), (18, 0)]
@@ -24,13 +28,14 @@ def get_available_times(date, court_id, use_type):
         current_time += timedelta(minutes=5)
 
     # Filtrar horarios ya reservados si court_id está presente
-    if court_id:
+    if court_id is not None:
         reservations = Reservation.query.filter_by(date=date, court_id=court_id).all()
         reserved_times = [(datetime.combine(date, r.start_time), datetime.combine(date, r.end_time)) for r in reservations]
         available_times = [t for t in times if all(not (start <= datetime.combine(date, t) < end) for start, end in reserved_times)]
         return available_times
 
     return times
+
 
     return available_times
 def get_available_courts(date_str, start_time_str):

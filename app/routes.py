@@ -53,10 +53,15 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
+
 @app.route('/reserve', methods=['GET', 'POST'])
 @login_required
 def reserve():
     form = ReservationForm()
+    
+    # Proporcionar opciones de canchas
+    form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+    
     if form.validate_on_submit():
         start_time = datetime.strptime(form.start_time.data, "%H:%M").time()
         use_type = form.use_type.data
@@ -95,11 +100,21 @@ def reserve():
         db.session.commit()
         flash('Reserva creada con éxito.')
         return redirect(url_for('index'))
+
     else:
-        form.date.data = datetime.today().date()
-        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(datetime.today().date(), None, None)]
-        form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+        today = datetime.today().date()
+        form.date.data = today
+        
+        # Proporcionar opciones predeterminadas si falta información
+        if form.date.data and form.court_id.data and form.use_type.data:
+            available_times = get_available_times(form.date.data, form.court_id.data, form.use_type.data)
+        else:
+            available_times = get_available_times(today, None, None)
+        
+        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in available_times]
+    
     return render_template('reservation.html', form=form)
+
 
 @app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
