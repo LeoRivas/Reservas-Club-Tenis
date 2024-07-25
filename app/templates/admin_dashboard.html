@@ -88,17 +88,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for reservation in unpaid_reservations %}
+                            {% for reservation in reservations %}
                                 <tr>
-                                    <td>{{ reservation.court.name }}</td>
                                     <td>{{ reservation.date }}</td>
                                     <td>{{ reservation.start_time }}</td>
                                     <td>{{ reservation.end_time }}</td>
-                                    <td>{{ reservation.user.username }}</td>
+                                    <td>{{ reservation.court.name }}</td>
                                     <td>
                                         <a href="{{ url_for('edit_reservation', reservation_id=reservation.id) }}" class="btn btn-primary btn-sm">Editar</a>
-                                        <a href="{{ url_for('delete_reservation', reservation_id=reservation.id) }}" class="btn btn-danger btn-sm">Eliminar</a>
+                                        <form action="{{ url_for('delete_reservation', reservation_id=reservation.id) }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
 
+                        
 
                                     </td>
                                 </tr>
