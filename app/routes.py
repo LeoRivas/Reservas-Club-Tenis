@@ -54,6 +54,14 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
+from flask import render_template, flash, redirect, url_for
+from flask_login import login_required, current_user
+from datetime import datetime, timedelta
+from app import app, db
+from app.forms import ReservationForm
+from app.models import Reservation, Court
+from app.utils import get_available_times
+
 @app.route('/reserve', methods=['GET', 'POST'])
 @login_required
 def reserve():
@@ -63,7 +71,7 @@ def reserve():
     form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     
     if form.validate_on_submit():
-        start_time = datetime.strptime(form.start_time.data, "%H:%M").time()
+        start_time = form.start_time.data  # No es necesario convertir, ya es un objeto time
         use_type = form.use_type.data
 
         # Calcular la hora de término basada en el tipo de uso
@@ -114,6 +122,7 @@ def reserve():
         form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in available_times]
     
     return render_template('reservation.html', form=form)
+
 
 
 @app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
