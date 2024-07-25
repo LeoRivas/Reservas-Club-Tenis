@@ -43,7 +43,7 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(username=form.username.data, email=form.email.data, is_member=form.is_member.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -55,6 +55,8 @@ def register():
 @login_required
 def reserve():
     form = ReservationForm()
+    form.player1.data = current_user.username
+    form.player1_is_member.data = current_user.is_member
     form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     print(form.__dict__)  # Añade esta línea para depuración
 
@@ -261,10 +263,14 @@ def edit_reservation(id):
 @login_required
 def delete_reservation(id):
     reservation = Reservation.query.get_or_404(id)
+    if reservation.user_id != current_user.id and not current_user.is_admin:
+        flash('No tienes permiso para eliminar esta reserva.')
+        return redirect(url_for('index'))
+    
     db.session.delete(reservation)
     db.session.commit()
     flash('Reserva eliminada con éxito.')
-    return redirect(url_for('admin_dashboard'))
+    return redirect(url_for('admin_dashboard' if current_user.is_admin else 'my_reservations'))
 
 @app.route('/edit_reservation_user/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required

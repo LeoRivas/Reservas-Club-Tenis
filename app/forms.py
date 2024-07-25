@@ -12,6 +12,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 class RegistrationForm(FlaskForm):
+    is_member = BooleanField('¿Eres socio?', default=False)
     username = StringField('Username', validators=[DataRequired(), Length(min=1, max=64)])
     email = StringField('Email', validators=[DataRequired(), Email(), Length(min=1, max=120)])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=1, max=128)])
@@ -129,11 +130,11 @@ class ReservationForm(FlaskForm):
         ('a', 'A'),
         ('b', 'B')
     ])
-    player1 = StringField('Jugador 1')
+    player1 = StringField('Jugador 1', render_kw={'readonly': True})
+    player1_is_member = BooleanField('Jugador 1 es socio', default=False, render_kw={'readonly': True}) 
     player2 = StringField('Jugador 2')
     player3 = StringField('Jugador 3')
     player4 = StringField('Jugador 4')
-    player1_is_member = BooleanField('¿Es socio?')
     player2_is_member = BooleanField('¿Es socio?')
     player3_is_member = BooleanField('¿Es socio?')
     player4_is_member = BooleanField('¿Es socio?')
