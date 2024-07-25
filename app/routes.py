@@ -106,7 +106,8 @@ def reserve():
         )
         db.session.add(reservation)
         db.session.commit()
-        flash('Reserva creada con éxito.')
+        mensaje = f"Hola {current_user.username}, ya hemos hecho tu reserva en la cancha {reservation.court_id} con Hora de Inicio {start_time.strftime('%H:%M')} y Hora de Término {end_time.strftime('%H:%M')}. Recuerda llegar 10 minutos antes para que puedas comenzar a la hora, ¡te esperamos!"
+        flash(mensaje)
         return redirect(url_for('index'))
 
     else:
