@@ -136,3 +136,21 @@ class EditReservationForm(FlaskForm):
         super(EditReservationForm, self).__init__(*args, **kwargs)
         self.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
         self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.date.data, self.court_id.data, self.use_type.data)]
+
+class DateRangeForm(FlaskForm):
+    start_date = DateField('Fecha de Inicio', validators=[DataRequired()])
+    end_date = DateField('Fecha de Término', validators=[DataRequired()])
+    submit = SubmitField('Buscar')
+
+class FormGeneral(FlaskForm):
+    date = DateField('Fecha', validators=[DataRequired()])
+    submit = SubmitField('Guardar')
+
+class FormIngresos(FlaskForm):
+    start_date = DateField('Fecha de Inicio', validators=[DataRequired()])
+    end_date = DateField('Fecha de Término', validators=[DataRequired()])
+    submit = SubmitField('Buscar')
+
+class FormNoPagadas(FlaskForm):
+    date = DateField('Fecha', validators=[DataRequired()])
+    submit = SubmitField('Guardar')
