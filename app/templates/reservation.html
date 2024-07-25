@@ -7,19 +7,19 @@
             {{ form.court_id.label(class="form-label") }}
             {{ form.court_id(class="form-control") }}
         </div> 
-
         <div class="form-group">
             {{ form.date.label(class="form-label") }}
             {{ form.date(class="form-control") }}
         </div>
         <div class="form-group">
             {{ form.start_time.label(class="form-label") }}
-            {{ form.start_time(class="form-control") }}
+            <select class="form-control" id="start_time" name="start_time">
+                {% for time in available_times %}
+                    <option value="{{ time }}">{{ time }}</option>
+                {% endfor %}
+            </select>
         </div>
-        <div class="form-group">
-            {{ form.end_time.label(class="form-label") }}
-            {{ form.end_time(class="form-control") }}
-        </div>
+
         <div class="form-group" id="use_type_div">
             {{ form.use_type.label(class="form-label") }}
             {{ form.use_type(class="form-control", id="use_type") }}
