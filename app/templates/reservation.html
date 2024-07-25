@@ -16,18 +16,15 @@
             </select>
         </div>
 
+         <div class="form-group">
+            {{ form.use_type.label(class="form-label") }}
+            {{ form.use_type(class="form-control") }}
+        </div>
         <div class="form-group">
             {{ form.court_id.label(class="form-label") }}
             {{ form.court_id(class="form-control") }}
         </div>
-        <div class="form-group">
-            {{ form.use_type.label(class="form-label") }}
-            {{ form.use_type(class="form-control") }}
-        </div>
-        <div class="form-group" id="use_type_div">
-            {{ form.use_type.label(class="form-label") }}
-            {{ form.use_type(class="form-control", id="use_type") }}
-        </div>
+       
         <div class="form-group" id="game_type_div">
             {{ form.game_type.label(class="form-label") }}
             {{ form.game_type(class="form-control", id="game_type") }}
