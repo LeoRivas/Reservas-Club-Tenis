@@ -256,5 +256,13 @@ def edit_reservation(id):
         return redirect(url_for('my_reservations'))
 
     return render_template('edit_reservation.html', form=form, reservation=reservation)
-
+    
+@app.route('/delete_reservation/<int:id>', methods=['POST'])
+@login_required
+def delete_reservation(id):
+    reservation = Reservation.query.get_or_404(id)
+    db.session.delete(reservation)
+    db.session.commit()
+    flash('Reserva eliminada con éxito.')
+    return redirect(url_for('admin_dashboard'))
 
