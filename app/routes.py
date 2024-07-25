@@ -99,7 +99,7 @@ def reserve():
             return redirect(url_for('index'))
     else:
         # Obtener los tiempos disponibles
-        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(datetime.today(), form.court_id.data)]
+        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(datetime.today(), form.court_id.data, form.use_type.data)]
     
     return render_template('reservation.html', form=form)
 
