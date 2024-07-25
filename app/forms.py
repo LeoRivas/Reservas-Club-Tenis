@@ -17,12 +17,12 @@ class LoginForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     is_member = BooleanField('¿Eres socio?', default=False)
-    username = StringField('Username', validators=[DataRequired(), Length(min=1, max=64)])
-    email = StringField('Email', validators=[DataRequired(), Email(), Length(min=1, max=120)])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=1, max=128)])
+    username = StringField('Nombre de Usuario', validators=[DataRequired(), Length(min=1, max=64)])
+    email = StringField('Correo electrónico', validators=[DataRequired(), Email(), Length(min=1, max=120)])
+    password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=1, max=128)])
     password2 = PasswordField(
-        'Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Register')
+        'Repetir Contraseña', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Registrar')
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
@@ -84,8 +84,9 @@ class EditReservationForm(FlaskForm):
     submit = SubmitField('Guardar')
 
     def __init__(self, *args, **kwargs):
-            super(EditReservationForm, self).__init__(*args, **kwargs)
-            self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.date.data, self.court_id.data, self.use_type.data)]
+        super(EditReservationForm, self).__init__(*args, **kwargs)
+        self.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+        self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.date.data, self.court_id.data, self.use_type.data)]
 
 class DateRangeForm(FlaskForm):
     start_date = DateField('Fecha de inicio', format='%Y-%m-%d', validators=[DataRequired()])
@@ -135,9 +136,9 @@ class FormNoPagadas(FlaskForm):
     submit = SubmitField('Filtrar')
 
 class ReservationForm(FlaskForm):
-    court_id = SelectField('Cancha', coerce=int, validators=[DataRequired()])
     date = DateField('Fecha', validators=[DataRequired()])
-    start_time = TimeField('Hora de inicio', validators=[DataRequired()])
+    start_time = SelectField('Hora de Inicio', choices=[])
+    court_id = SelectField('Cancha', coerce=int)
     use_type = SelectField('Tipo de uso', choices=[
         ('amistoso', 'Amistoso'),
         ('liga', 'Liga'),
@@ -182,4 +183,9 @@ class ReservationForm(FlaskForm):
     payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])  # Allowing optional values and minimum of 0
     comments = TextAreaField('Comentarios')
     submit = SubmitField('Guardar')
+   def __init__(self, *args, **kwargs):
+           super(ReservationForm, self).__init__(*args, **kwargs)
+           self.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+           self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.date.data, self.court_id.data, self.use_type.data)]
+
 

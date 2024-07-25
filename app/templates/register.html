@@ -1,31 +1,40 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Register</h1>
-    <form action="" method="post" novalidate>
+<div class="container mt-5">
+    <h1>Registrar</h1>
+    <form method="POST" action="">
         {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            <label for="is_member">{{ form.is_member.label }}</label>
+            <div class="custom-control custom-checkbox">
+                {{ form.is_member(class="custom-control-input") }}
+                <label class="custom-control-label" for="is_member">{{ form.is_member.label.text }}</label>
+            </div>
+        </div>
         
-        <p>
-            {{ form.is_member.label }}<br>
-            {{ form.is_member() }}<br>
-        </p>
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}<br>
-        </p>
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email(size=32) }}<br>
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}<br>
-        </p>
-        <p>
-            {{ form.password2.label }}<br>
-            {{ form.password2(size=32) }}<br>
-        </p>
+        <div class="form-group">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control") }}
+        </div>
         
-        <p>{{ form.submit() }}</p>
+        <div class="form-group">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control") }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control") }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.password2.label(class="form-label") }}
+            {{ form.password2(class="form-control") }}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Registrar</button>
     </form>
+</div>
 {% endblock %}

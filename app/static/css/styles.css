@@ -27,3 +27,16 @@ body {
 .form-group {
     margin-bottom: 1rem;
 }
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.custom-control-label {
+    font-size: 1.2em;
+}
+
+.custom-control-input {
+    width: 1.5em;
+    height: 1.5em;
+}
