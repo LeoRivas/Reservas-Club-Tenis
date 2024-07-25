@@ -8,11 +8,7 @@
       {{ form.admin_name.label }}<br>
       {{ form.admin_name(size=32) }}
     </p>
-    <p>
-      {{ form.court_id.label }}<br>
-      {{ form.court_id() }}
-    </p>
-    <p>
+      <p>
       {{ form.date.label }}<br>
       {{ form.date() }}
     </p>
@@ -21,9 +17,9 @@
       {{ form.start_time() }}
     </p>
     <p>
-      {{ form.end_time.label }}<br>
-      {{ form.end_time() }}
-    </p>
+      {{ form.court_id.label }}<br>
+      {{ form.court_id() }}
+    </p> 
     <p>
       {{ form.is_paid.label }}<br>
       {{ form.is_paid() }}
