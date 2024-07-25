@@ -1,17 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
 <div class="jumbotron">
     <h1 class="display-4"> Club de Tenis Curicó</h1>
     <p class="lead">El lugar para hacer y ver tus reservas</p>
