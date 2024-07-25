@@ -1,4 +1,7 @@
-def get_available_times(date, court_id, use_type=None):
+from datetime import datetime, time, timedelta
+from app.models import Reservation
+
+def get_available_times(date, court_id, use_type):
     # Horarios del club
     weekday_hours = [(8, 30), (23, 0)]
     saturday_hours = [(8, 30), (18, 0)]
