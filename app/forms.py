@@ -85,7 +85,7 @@ class EditReservationForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(EditReservationForm, self).__init__(*args, **kwargs)
-        self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.court_id.data, self.date.data, self.use_type.data)]
+        self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.date.data, self.court_id.data, self.use_type.data)]
 class DateRangeForm(FlaskForm):
     start_date = DateField('Fecha de inicio', format='%Y-%m-%d', validators=[DataRequired()])
     end_date = DateField('Fecha de fin', format='%Y-%m-%d', validators=[DataRequired()])
@@ -157,8 +157,8 @@ class ReservationForm(FlaskForm):
         ('a', 'A'),
         ('b', 'B')
     ])
-    player1 = StringField('Jugador 1', default=lambda: current_user.username if current_user.is_authenticated else '', render_kw={'readonly': True})
-    player1_is_member = BooleanField('Jugador 1 es socio', default=lambda: current_user.is_member if current_user.is_authenticated else False, render_kw={'readonly': True})
+    player1 = StringField('Jugador 1', render_kw={'readonly': True})
+    player1_is_member = BooleanField('Jugador 1 es socio', default=False, render_kw={'readonly': True}) 
     player2 = StringField('Jugador 2')
     player3 = StringField('Jugador 3')
     player4 = StringField('Jugador 4')
@@ -178,6 +178,7 @@ class ReservationForm(FlaskForm):
         ('avanzado', 'Avanzado')
     ])
     is_paid = BooleanField('Pagado')
-    payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])
+    payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])  # Allowing optional values and minimum of 0
     comments = TextAreaField('Comentarios')
     submit = SubmitField('Guardar')
+

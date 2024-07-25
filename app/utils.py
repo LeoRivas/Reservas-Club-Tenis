@@ -1,4 +1,4 @@
-def get_available_times(date, court_id):
+def get_available_times(date, court_id, use_type=None):
     # Horarios del club
     weekday_hours = [(8, 30), (23, 0)]
     saturday_hours = [(8, 30), (18, 0)]

@@ -57,19 +57,27 @@ def register():
 @login_required
 def reserve():
     form = ReservationForm()
+    if form.date.data and form.court_id.data:
+        available_times = get_available_times(form.date.data, form.court_id.data)
+    else:
+        available_times = []
+
     if form.validate_on_submit():
-        start_time = form.start_time.data
-        if form.use_type.data in ['amistoso', 'liga']:
-            end_time = (datetime.combine(date.min, start_time) + timedelta(minutes=90)).time()
+        start_time = datetime.strptime(form.start_time.data, "%H:%M").time()
+        use_type = form.use_type.data
+
+        # Calcular la hora de término basada en el tipo de uso
+        if use_type in ['amistoso', 'liga']:
+            end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=90)).time()
         else:
-            end_time = (datetime.combine(date.min, start_time) + timedelta(minutes=60)).time()
+            end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=60)).time()
 
         reservation = Reservation(
             court_id=form.court_id.data,
             date=form.date.data,
             start_time=start_time,
-            end_time=end_time,
-            use_type=form.use_type.data,
+            end_time=end_time,  # Usar la hora de término calculada
+            use_type=use_type,
             game_type=form.game_type.data,
             league_category=form.league_category.data,
             player1=form.player1.data,
@@ -85,13 +93,16 @@ def reserve():
             academy_category=form.academy_category.data,
             is_paid=form.is_paid.data,
             payment_amount=form.payment_amount.data,
-            comments=form.comments.data
+            comments=form.comments.data,
+            user_id=current_user.id
         )
         db.session.add(reservation)
         db.session.commit()
         flash('Reserva creada con éxito.')
         return redirect(url_for('index'))
-    return render_template('reservation.html', form=form)
+    return render_template('reservation.html', form=form, available_times=available_times)
+
+
 
 @app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
