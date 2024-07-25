@@ -4,10 +4,12 @@ from app.forms import LoginForm, RegistrationForm, ReservationForm, EditReservat
 from app.models import User, Reservation, Court
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from sqlalchemy import func
 import csv
 from io import StringIO
+from app.utils import get_available_times
+
 
 
 @app.route('/')
@@ -55,41 +57,80 @@ def register():
 @login_required
 def reserve():
     form = ReservationForm()
-    form.player1.data = current_user.username
-    form.player1_is_member.data = current_user.is_member
-    form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
-    print(form.__dict__)  # Añade esta línea para depuración
-
     if form.validate_on_submit():
+        start_time = form.start_time.data
+        if form.use_type.data in ['amistoso', 'liga']:
+            end_time = (datetime.combine(date.min, start_time) + timedelta(minutes=90)).time()
+        else:
+            end_time = (datetime.combine(date.min, start_time) + timedelta(minutes=60)).time()
+
         reservation = Reservation(
             court_id=form.court_id.data,
-            user_id=current_user.id,
             date=form.date.data,
-            start_time=form.start_time.data,
-            end_time=form.end_time.data,
+            start_time=start_time,
+            end_time=end_time,
             use_type=form.use_type.data,
             game_type=form.game_type.data,
             league_category=form.league_category.data,
             player1=form.player1.data,
-            player2=form.player2.data,
-            player3=form.player3.data,
-            player4=form.player4.data,
-            trainer=form.trainer.data,
             player1_is_member=form.player1_is_member.data,
+            player2=form.player2.data,
             player2_is_member=form.player2_is_member.data,
+            player3=form.player3.data,
             player3_is_member=form.player3_is_member.data,
+            player4=form.player4.data,
             player4_is_member=form.player4_is_member.data,
+            trainer=form.trainer.data,
             elite_category=form.elite_category.data,
             academy_category=form.academy_category.data,
             is_paid=form.is_paid.data,
-            payment_amount=form.payment_amount.data if form.payment_amount.data else 0,
+            payment_amount=form.payment_amount.data,
             comments=form.comments.data
         )
         db.session.add(reservation)
         db.session.commit()
-        flash('Tu reserva ha sido realizada!')
+        flash('Reserva creada con éxito.')
         return redirect(url_for('index'))
-    return render_template('reservation.html', title='Reserve', form=form)
+    return render_template('reservation.html', form=form)
+
+@app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_reservation(id):
+    reservation = Reservation.query.get_or_404(id)
+    form = EditReservationForm(obj=reservation)
+    
+    if form.validate_on_submit():
+        start_time = datetime.combine(form.date.data, datetime.strptime(form.start_time.data, "%H:%M").time())
+        if form.use_type.data in ['amistoso', 'liga']:
+            end_time = start_time + timedelta(hours=1, minutes=30)
+        else:
+            end_time = start_time + timedelta(hours=1)
+
+        reservation.date = form.date.data
+        reservation.start_time = start_time.time()
+        reservation.end_time = end_time.time()
+        reservation.use_type = form.use_type.data
+        reservation.game_type = form.game_type.data
+        reservation.league_category = form.league_category.data
+        reservation.player1 = form.player1.data
+        reservation.player1_is_member = form.player1_is_member.data
+        reservation.player2 = form.player2.data
+        reservation.player2_is_member = form.player2_is_member.data
+        reservation.player3 = form.player3.data
+        reservation.player3_is_member = form.player3_is_member.data
+        reservation.player4 = form.player4.data
+        reservation.player4_is_member = form.player4_is_member.data
+        reservation.trainer = form.trainer.data
+        reservation.elite_category = form.elite_category.data
+        reservation.academy_category = form.academy_category.data
+        reservation.is_paid = form.is_paid.data
+        reservation.payment_amount = form.payment_amount.data
+        reservation.comments = form.comments.data
+        db.session.commit()
+        flash('Reserva actualizada con éxito.')
+        return redirect(url_for('admin_dashboard'))
+
+    return render_template('edit_reservation.html', form=form, reservation=reservation)
 
 
 @app.route('/calendar', methods=['GET', 'POST'])
@@ -101,7 +142,7 @@ def calendar():
         date = datetime.today().date()
 
     courts = Court.query.all()
-    times = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"]
+    times = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
     reservations = Reservation.query.filter_by(date=date).all()
 
     for reservation in reservations:
@@ -218,60 +259,6 @@ def my_reservations():
     reservations = Reservation.query.filter_by(user_id=current_user.id).all()
     return render_template('user_reservations.html', reservations=reservations)
 
-@app.route('/edit_reservation/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_reservation(id):
-    reservation = Reservation.query.get_or_404(id)
-    form = EditReservationForm(obj=reservation)
-    if form.validate_on_submit():
-        form.populate_obj(reservation)
-        db.session.commit()
-        flash('Reserva actualizada con éxito.')
-        return redirect(url_for('admin_dashboard'))
-    return render_template('edit_reservation.html', form=form, reservation=reservation)
-
-
-    form = EditReservationForm(obj=reservation)
-    if form.validate_on_submit():
-        reservation.date = form.date.data
-        reservation.start_time = form.start_time.data
-        reservation.end_time = form.end_time.data
-        reservation.use_type = form.use_type.data
-        reservation.game_type = form.game_type.data
-        reservation.league_category = form.league_category.data
-        reservation.player1 = form.player1.data
-        reservation.player1_is_member = form.player1_is_member.data
-        reservation.player2 = form.player2.data
-        reservation.player2_is_member = form.player2_is_member.data
-        reservation.player3 = form.player3.data
-        reservation.player3_is_member = form.player3_is_member.data
-        reservation.player4 = form.player4.data
-        reservation.player4_is_member = form.player4_is_member.data
-        reservation.trainer = form.trainer.data
-        reservation.elite_category = form.elite_category.data
-        reservation.academy_category = form.academy_category.data
-        reservation.is_paid = form.is_paid.data
-        reservation.payment_amount = form.payment_amount.data
-        reservation.comments = form.comments.data
-        db.session.commit()
-        flash('Reserva actualizada correctamente.')
-        return redirect(url_for('my_reservations'))
-
-    return render_template('edit_reservation.html', form=form, reservation=reservation)
-
-@app.route('/delete_reservation/<int:id>', methods=['POST'])
-@login_required
-def delete_reservation(id):
-    reservation = Reservation.query.get_or_404(id)
-    if reservation.user_id != current_user.id and not current_user.is_admin:
-        flash('No tienes permiso para eliminar esta reserva.')
-        return redirect(url_for('index'))
-    
-    db.session.delete(reservation)
-    db.session.commit()
-    flash('Reserva eliminada con éxito.')
-    return redirect(url_for('admin_dashboard' if current_user.is_admin else 'my_reservations'))
-
 @app.route('/edit_reservation_user/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required
 def edit_reservation_user(reservation_id):
@@ -280,11 +267,18 @@ def edit_reservation_user(reservation_id):
         flash('No tienes permiso para editar esta reserva.')
         return redirect(url_for('my_reservations'))
     
-    form = EditReservationForm()
+    form = EditReservationForm(obj=reservation)
+    
     if form.validate_on_submit():
+        start_time = datetime.combine(form.date.data, datetime.strptime(form.start_time.data, "%H:%M").time())
+        if form.use_type.data in ['amistoso', 'liga']:
+            end_time = start_time + timedelta(hours=1, minutes=30)
+        else:
+            end_time = start_time + timedelta(hours=1)
+
         reservation.date = form.date.data
-        reservation.start_time = form.start_time.data
-        reservation.end_time = form.end_time.data
+        reservation.start_time = start_time.time()
+        reservation.end_time = end_time.time()
         reservation.use_type = form.use_type.data
         reservation.game_type = form.game_type.data
         reservation.league_category = form.league_category.data
@@ -303,8 +297,7 @@ def edit_reservation_user(reservation_id):
         return redirect(url_for('my_reservations'))
     elif request.method == 'GET':
         form.date.data = reservation.date
-        form.start_time.data = reservation.start_time
-        form.end_time.data = reservation.end_time
+        form.start_time.data = reservation.start_time.strftime("%H:%M")
         form.use_type.data = reservation.use_type
         form.game_type.data = reservation.game_type
         form.league_category.data = reservation.league_category
@@ -319,5 +312,17 @@ def edit_reservation_user(reservation_id):
         form.payment_amount.data = reservation.payment_amount
         form.comments.data = reservation.comments
     return render_template('edit_reservation.html', title='Editar Reserva', form=form)
+
+@app.route('/delete_reservation/<int:id>', methods=['POST'])
+@login_required
+def delete_reservation(id):
+    reservation = Reservation.query.get_or_404(id)
+    if reservation.user_id != current_user.id and not current_user.is_admin:
+        flash('No tienes permiso para eliminar esta reserva.')
+        return redirect(url_for('index'))
     
+    db.session.delete(reservation)
+    db.session.commit()
+    flash('Reserva eliminada con éxito.')
+    return redirect(url_for('admin_dashboard' if current_user.is_admin else 'my_reservations'))
 

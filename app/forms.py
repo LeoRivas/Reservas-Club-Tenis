@@ -3,6 +3,10 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Selec
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, NumberRange, Optional, Length
 from datetime import time
 from app.models import User, Court, Reservation
+from app.utils import get_available_times
+from flask_login import current_user
+
+
 
 
 class LoginForm(FlaskForm):
@@ -31,33 +35,57 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 class EditReservationForm(FlaskForm):
+    court_id = SelectField('Cancha', coerce=int, validators=[DataRequired()])
     date = DateField('Fecha', validators=[DataRequired()])
-    start_time = TimeField('Hora de Inicio', validators=[DataRequired()])
-    end_time = TimeField('Hora de Fin', validators=[DataRequired()])
-    use_type = StringField('Tipo de Uso', validators=[DataRequired()])
-    game_type = StringField('Tipo de Juego', validators=[DataRequired()])
-    league_category = StringField('Categoría de Liga', validators=[DataRequired()])
-    player1 = StringField('Jugador 1', validators=[DataRequired()])
-    player1_is_member = BooleanField('Jugador 1 es Miembro')
-    player2 = StringField('Jugador 2', validators=[DataRequired()])
-    player2_is_member = BooleanField('Jugador 2 es Miembro')
-    player3 = StringField('Jugador 3')
-    player3_is_member = BooleanField('Jugador 3 es Miembro')
-    player4 = StringField('Jugador 4')
-    player4_is_member = BooleanField('Jugador 4 es Miembro')
-    trainer = StringField('Entrenador')
-    elite_category = StringField('Categoría Elite')
-    academy_category = StringField('Categoría Academia')
-    is_paid = BooleanField('Pagada')
-    payment_amount = IntegerField('Monto de Pago', validators=[DataRequired()])
+    use_type = SelectField('Tipo de uso', choices=[
+        ('amistoso', 'Amistoso'),
+        ('liga', 'Liga'),
+        ('entrenamiento_individual', 'Entrenamiento Individual'),
+        ('entrenamiento_grupal', 'Entrenamiento Grupal'),
+        ('elite', 'Elite'),
+        ('academia_interna', 'Academia Interna')
+    ], validators=[DataRequired()])
+    game_type = SelectField('Tipo de juego', choices=[
+        ('singles', 'Singles'),
+        ('doubles', 'Dobles')
+    ], validators=[Optional()])
+    league_category = SelectField('Categoría de liga', choices=[
+        ('primera', 'Primera'),
+        ('segunda', 'Segunda'),
+        ('tercera', 'Tercera'),
+        ('cuarta', 'Cuarta'),
+        ('a', 'A'),
+        ('b', 'B')
+    ], validators=[Optional()])
+    start_time = SelectField('Hora de inicio', choices=[], validators=[DataRequired()])
+    player1 = StringField('Jugador 1', render_kw={'readonly': True})
+    player1_is_member = BooleanField('Jugador 1 es socio', default=False, render_kw={'readonly': True})
+    player2 = StringField('Jugador 2', validators=[Optional()])
+    player2_is_member = BooleanField('¿Es socio?', validators=[Optional()])
+    player3 = StringField('Jugador 3', validators=[Optional()])
+    player3_is_member = BooleanField('¿Es socio?', validators=[Optional()])
+    player4 = StringField('Jugador 4', validators=[Optional()])
+    player4_is_member = BooleanField('¿Es socio?', validators=[Optional()])
+    trainer = StringField('Entrenador', validators=[Optional()])
+    elite_category = SelectField('Categoría Elite', choices=[
+        ('cancha_naranja', 'Cancha Naranja'),
+        ('cancha_roja', 'Cancha Roja'),
+        ('cancha_verde', 'Cancha Verde'),
+        ('proyeccion', 'Proyección')
+    ], validators=[Optional()])
+    academy_category = SelectField('Categoría de Academia', choices=[
+        ('inicio', 'Inicio'),
+        ('intermedio', 'Intermedio'),
+        ('avanzado', 'Avanzado')
+    ], validators=[Optional()])
+    is_paid = BooleanField('Pagado')
+    payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])
     comments = TextAreaField('Comentarios')
     submit = SubmitField('Guardar')
 
     def __init__(self, *args, **kwargs):
         super(EditReservationForm, self).__init__(*args, **kwargs)
-        self.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
-
-
+        self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.court_id.data, self.date.data, self.use_type.data)]
 class DateRangeForm(FlaskForm):
     start_date = DateField('Fecha de inicio', format='%Y-%m-%d', validators=[DataRequired()])
     end_date = DateField('Fecha de fin', format='%Y-%m-%d', validators=[DataRequired()])
@@ -109,7 +137,6 @@ class ReservationForm(FlaskForm):
     court_id = SelectField('Cancha', coerce=int, validators=[DataRequired()])
     date = DateField('Fecha', validators=[DataRequired()])
     start_time = TimeField('Hora de inicio', validators=[DataRequired()])
-    end_time = TimeField('Hora de término', validators=[DataRequired()])
     use_type = SelectField('Tipo de uso', choices=[
         ('amistoso', 'Amistoso'),
         ('liga', 'Liga'),
@@ -130,8 +157,8 @@ class ReservationForm(FlaskForm):
         ('a', 'A'),
         ('b', 'B')
     ])
-    player1 = StringField('Jugador 1', render_kw={'readonly': True})
-    player1_is_member = BooleanField('Jugador 1 es socio', default=False, render_kw={'readonly': True}) 
+    player1 = StringField('Jugador 1', default=lambda: current_user.username if current_user.is_authenticated else '', render_kw={'readonly': True})
+    player1_is_member = BooleanField('Jugador 1 es socio', default=lambda: current_user.is_member if current_user.is_authenticated else False, render_kw={'readonly': True})
     player2 = StringField('Jugador 2')
     player3 = StringField('Jugador 3')
     player4 = StringField('Jugador 4')
@@ -143,7 +170,7 @@ class ReservationForm(FlaskForm):
         ('cancha_naranja', 'Cancha Naranja'),
         ('cancha_roja', 'Cancha Roja'),
         ('cancha_verde', 'Cancha Verde'),
-        ('adultos', 'Adultos')
+        ('proyeccion', 'Proyección')
     ])
     academy_category = SelectField('Categoría de Academia', choices=[
         ('inicio', 'Inicio'),
@@ -151,34 +178,6 @@ class ReservationForm(FlaskForm):
         ('avanzado', 'Avanzado')
     ])
     is_paid = BooleanField('Pagado')
-    payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])  # Allowing optional values and minimum of 0
+    payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])
     comments = TextAreaField('Comentarios')
     submit = SubmitField('Guardar')
-
-
-    def validate_start_time(self, field):
-        if not (time(8, 30) <= field.data <= time(21, 30)):
-            raise ValidationError('La hora de inicio debe estar entre las 08:30 y las 21:30.')
-
-    def validate_end_time(self, field):
-        if not (time(8, 30) <= field.data <= time(21, 30)):
-            raise ValidationError('La hora de término debe estar entre las 08:30 y las 21:30.')
-
-    def validate_custom(self):
-        result = True
-        if self.date.data.weekday() >= 5:  # Sábado y Domingo
-            if self.date.data.weekday() == 5:  # Sábado
-                if not (time(8, 30) <= self.start_time.data <= time(16, 0)):
-                    self.start_time.errors.append('Los sábados, la hora de inicio debe estar entre las 08:30 y las 16:00.')
-                    result = False
-                if not (time(8, 30) <= self.end_time.data <= time(16, 0)):
-                    self.end_time.errors.append('Los sábados, la hora de término debe estar entre las 08:30 y las 16:00.')
-                    result = False
-            if self.date.data.weekday() == 6:  # Domingo
-                if not (time(8, 30) <= self.start_time.data <= time(14, 0)):
-                    self.start_time.errors.append('Los domingos, la hora de inicio debe estar entre las 08:30 y las 14:00.')
-                    result = False
-                if not (time(8, 30) <= self.end_time.data <= time(14, 0)):
-                    self.end_time.errors.append('Los domingos, la hora de término debe estar entre las 08:30 y las 14:00.')
-                    result = False
-        return result
