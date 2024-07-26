@@ -77,7 +77,7 @@ def check_availability(date, start_time, end_time, court_id=None):
             return False, available_courts
     return True, available_courts
 
-    @app.route('/reserve', methods=['GET', 'POST'])
+@app.route('/reserve', methods=['GET', 'POST'])
 @login_required
 def reserve():
     form = ReservationForm()
