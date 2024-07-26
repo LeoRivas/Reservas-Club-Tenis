@@ -187,9 +187,13 @@ def reserve():
 
     # Actualizar las opciones del campo de selección de canchas
     if form.start_time.data:
-        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(form.start_time.data)]
+        start_time = form.start_time.data
+        end_time = start_time + timedelta(hours=1)  # Puedes ajustar la duración según sea necesario
+        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(start_time, end_time)]
     else:
-        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(datetime.now())]
+        start_time = datetime.now()
+        end_time = start_time + timedelta(hours=1)
+        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(start_time, end_time)]
 
     return render_template('reservation.html', title='Reservar', form=form)
 
