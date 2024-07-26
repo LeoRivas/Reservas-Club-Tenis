@@ -35,18 +35,13 @@ def get_available_times(date, court_id, use_type):
 
     return times
 
-def get_available_courts(start_time, end_time):
-    if isinstance(start_time, datetime):
-        start_time = start_time.time()
-    if isinstance(end_time, datetime):
-        end_time = end_time.time()
-
-    reservations = Reservation.query.filter(
-        Reservation.start_time < end_time,
-        Reservation.end_time > start_time
-    ).all()
-
-    reserved_court_ids = [reservation.court_id for reservation in reservations]
-    available_courts = Court.query.filter(Court.id.notin_(reserved_court_ids)).all()
+def check_availability(date, start_time, end_time):
+    reservations = Reservation.query.filter_by(date=date).all()
+    available_courts = Court.query.all()
+    
+    for reservation in reservations:
+        if not (start_time >= reservation.end_time or end_time <= reservation.start_time):
+            available_courts = [court for court in available_courts if court.id != reservation.court_id]
 
     return available_courts
+

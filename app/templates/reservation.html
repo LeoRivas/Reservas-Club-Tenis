@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Reserva una cancha</h1>
+    <h1>Reservar Cancha</h1>
     <form method="POST" action="{{ url_for('reserve') }}">
         {{ form.hidden_tag() }}
         <div class="form-group">
@@ -17,23 +17,23 @@
         </div>
         <div class="form-group">
             {{ form.use_type.label(class="form-label") }}
-            {{ form.use_type(class="form-control") }}
+            {{ form.use_type(class="form-control", id="use-type-field") }}
         </div>
         <div class="form-group" id="game_type_div">
             {{ form.game_type.label(class="form-label") }}
-            {{ form.game_type(class="form-control", id="game_type") }}
+            {{ form.game_type(class="form-control") }}
         </div>
         <div class="form-group" id="league_category_div">
             {{ form.league_category.label(class="form-label") }}
-            {{ form.league_category(class="form-control", id="league_category") }}
+            {{ form.league_category(class="form-control") }}
         </div>
         <div class="form-group" id="elite_category_div">
             {{ form.elite_category.label(class="form-label") }}
-            {{ form.elite_category(class="form-control", id="elite_category") }}
+            {{ form.elite_category(class="form-control") }}
         </div>
         <div class="form-group" id="academy_category_div">
             {{ form.academy_category.label(class="form-label") }}
-            {{ form.academy_category(class="form-control", id="academy_category") }}
+            {{ form.academy_category(class="form-control") }}
         </div>
         <div class="form-group" id="player1_div">
             {{ form.player1.label(class="form-label") }}
@@ -81,12 +81,14 @@
     <script>
     document.getElementById('date-field').addEventListener('change', updateCourts);
     document.getElementById('time-field').addEventListener('change', updateCourts);
+    document.getElementById('use-type-field').addEventListener('change', updateCourts);
 
     function updateCourts() {
         var date = document.getElementById('date-field').value;
         var time = document.getElementById('time-field').value;
-        if (date && time) {
-            fetch(`/get_available_courts?date=${date}&time=${time}`)
+        var useType = document.getElementById('use-type-field').value;
+        if (date && time && useType) {
+            fetch(`/get_available_courts?date=${date}&time=${time}&use_type=${useType}`)
                 .then(response => response.json())
                 .then(data => {
                     var courtField = document.getElementById('court-field');
@@ -101,6 +103,7 @@
         }
     }
     </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const useTypeField = document.getElementById('use_type');
