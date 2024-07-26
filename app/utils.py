@@ -40,3 +40,29 @@ def check_availability(date, start_time, end_time):
     return available_courts
 
 
+def get_available_courts(date, start_time):
+    # Convertir la fecha y hora a objetos datetime
+    date = datetime.strptime(date, '%Y-%m-%d').date()
+    start_time = datetime.strptime(start_time, '%H:%M').time()
+
+    # Calcular la hora de término basada en la duración de la reserva
+    end_time = (datetime.combine(date, start_time) + timedelta(minutes=90)).time()  # Ajusta la duración según sea necesario
+
+    # Obtener todas las reservas en la fecha y hora seleccionada
+    reservations = Reservation.query.filter_by(date=date).all()
+
+    # Filtrar las canchas ocupadas en ese horario
+    occupied_courts = set()
+    for reservation in reservations:
+        if not (reservation.end_time <= start_time or reservation.start_time >= end_time):
+            occupied_courts.add(reservation.court_id)
+
+    # Obtener todas las canchas
+    all_courts = Court.query.all()
+
+    # Filtrar las canchas disponibles
+    available_courts = [court for court in all_courts if court.id not in occupied_courts]
+
+    return available_courts
+
+
