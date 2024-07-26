@@ -80,13 +80,14 @@ class ReservationForm(FlaskForm):
     submit = SubmitField('Guardar')
 
     def __init__(self, *args, **kwargs):
-         super(ReservationForm, self).__init__(*args, **kwargs)
-         date = self.date.data or datetime.today().date()
-         court_id = self.court_id.data
-         use_type = self.use_type.data
-         if date and court_id and use_type:
-             self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
-         else:
+            super(ReservationForm, self).__init__(*args, **kwargs)
+            date = self.date.data or datetime.today().date()
+            court_id = self.court_id.data
+            use_type = self.use_type.data
+            if date and court_id and use_type:
+                self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
+            else:
+                self.start_time.choices = []
              self.start_time.choices = []
 class EditReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])
