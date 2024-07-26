@@ -125,6 +125,7 @@ def reserve():
             db.session.commit()
             flash(f'Hola {current_user.username}, ya hemos actualizado tu reserva en la cancha {reservation.court.name} con Hora de Inicio {reservation.start_time.strftime("%H:%M")} y Hora de Termino {reservation.end_time.strftime("%H:%M")}, recuerda llegar 10 minutos antes para que puedas comenzar a la hora, te esperamos!', 'success')
             return redirect(url_for('calendar'))
+
     else:
         # Si no hay fecha proporcionada, usa la fecha actual
         date = form.date.data or datetime.today().date()
@@ -137,7 +138,13 @@ def reserve():
 
     # Actualizar las opciones del campo de selección de canchas
     if form.start_time.data and form.end_time.data:
-        form.court_id.choices = [(court.id, court.name) for court in
+        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(form.start_time.data, form.end_time.data)]
+    else:
+        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(datetime.now(), datetime.now())]
+
+    return render_template('reserve.html', title='Reserve', form=form)
+
+
 
 
 
