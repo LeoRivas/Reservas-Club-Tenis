@@ -133,8 +133,8 @@ def edit_reservation(reservation_id):
     return render_template('edit_reservation.html', title='Edit Reservation', form=form)
 
 @app.route('/reserve', methods=['GET', 'POST'])
-    @login_required
-    def reserve():
+@login_required
+def reserve():
         form = ReservationForm()
         if form.validate_on_submit():
             start_time = form.start_time.data
@@ -192,7 +192,8 @@ def edit_reservation(reservation_id):
         else:
             form.court_id.choices = [(court.id, court.name) for court in get_available_courts(datetime.now())]
 
-        return render_template('reservation.html', title='Reservar', form=form)        
+        return render_template('reservation.html', title='Reservar', form=form)
+
 @app.route('/edit_user_reservation/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required
 def edit_user_reservation(reservation_id):
