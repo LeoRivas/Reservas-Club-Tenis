@@ -30,69 +30,80 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
-class ReservationForm(FlaskForm):
-    date = DateField('Fecha', validators=[DataRequired()])
-    start_time = SelectField('Hora de Inicio', choices=[])
-    court_id = SelectField('Cancha', coerce=int)
-    use_type = SelectField('Tipo de uso', choices=[
-        ('amistoso', 'Amistoso'),
-        ('liga', 'Liga'),
-        ('entrenamiento_individual', 'Entrenamiento Individual'),
-        ('entrenamiento_grupal', 'Entrenamiento Grupal'),
-        ('elite', 'Elite'),
-        ('academia_interna', 'Academia Interna')
-    ], validators=[DataRequired()])
-    game_type = SelectField('Tipo de juego', choices=[
-        ('singles', 'Singles'),
-        ('doubles', 'Dobles')
-    ])
-    league_category = SelectField('Categoría de liga', choices=[
-        ('primera', 'Primera'),
-        ('segunda', 'Segunda'),
-        ('tercera', 'Tercera'),
-        ('cuarta', 'Cuarta'),
-        ('a', 'A'),
-        ('b', 'B')
-    ])
-    player1 = StringField('Jugador 1', render_kw={'readonly': True})
-    player1_is_member = BooleanField('Jugador 1 es socio', default=False, render_kw={'readonly': True}) 
-    player2 = StringField('Jugador 2')
-    player3 = StringField('Jugador 3')
-    player4 = StringField('Jugador 4')
-    player2_is_member = BooleanField('¿Es socio?')
-    player3_is_member = BooleanField('¿Es socio?')
-    player4_is_member = BooleanField('¿Es socio?')
-    trainer = StringField('Entrenador')
-    elite_category = SelectField('Categoría Elite', choices=[
-        ('cancha_naranja', 'Cancha Naranja'),
-        ('cancha_roja', 'Cancha Roja'),
-        ('cancha_verde', 'Cancha Verde'),
-        ('proyeccion', 'Proyección')
-    ])
-    academy_category = SelectField('Categoría de Academia', choices=[
-        ('inicio', 'Inicio'),
-        ('intermedio', 'Intermedio'),
-        ('avanzado', 'Avanzado')
-    ])
-    is_paid = BooleanField('Pagado')
-    payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])  # Allowing optional values and minimum of 0
-    comments = TextAreaField('Comentarios')
-    submit = SubmitField('Guardar')
+from datetime import datetime, timedelta
+from flask import render_template, flash, redirect, url_for
+from flask_login import login_required, current_user
+from app import app, db
+from app.forms import ReservationForm
+from app.models import Reservation
+from app.utils import get_available_times, get_available_courts
 
-    def __init__(self, *args, **kwargs):
-            super(ReservationForm, self).__init__(*args, **kwargs)
-            date = self.date.data or datetime.today().date()
-            court_id = self.court_id.data
-            use_type = self.use_type.data
-            if date and court_id and use_type:
-                self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
-            else:
-                self.start_time.choices = []
-             self.start_time.choices = []
-class ReservationForm(FlaskForm):
+@app.route('/reserve', methods=['GET', 'POST'])
+@login_required
+def reserve():
+    form = ReservationForm()
+    if form.validate_on_submit():
+        start_time = form.start_time.data
+        date = form.date.data
+        court_id = form.court_id.data
+
+        # Obtener canchas disponibles
+        available_courts = get_available_courts(start_time)
+        available_court_names = ', '.join([court.name for court in available_courts])
+
+        if court_id not in [court.id for court in available_courts]:
+            flash(f'La cancha seleccionada no está disponible en el horario seleccionado. Sin embargo, las siguientes canchas están disponibles: {available_court_names}. Por favor, seleccione una cancha disponible.', 'danger')
+        else:
+            # Manejo de la lógica de la reserva
+            end_time = (datetime.combine(date, datetime.strptime(start_time, "%H:%M").time()) + timedelta(hours=1)).time()
+            reservation = Reservation(
+                court_id=court_id,
+                date=date,
+                start_time=start_time,
+                end_time=end_time,
+                use_type=form.use_type.data,
+                game_type=form.game_type.data,
+                league_category=form.league_category.data,
+                player1=form.player1.data,
+                player1_is_member=form.player1_is_member.data,
+                player2=form.player2.data,
+                player2_is_member=form.player2_is_member.data,
+                player3=form.player3.data,
+                player3_is_member=form.player3_is_member.data,
+                player4=form.player4.data,
+                player4_is_member=form.player4_is_member.data,
+                trainer=form.trainer.data,
+                elite_category=form.elite_category.data,
+                academy_category=form.academy_category.data,
+                is_paid=form.is_paid.data,
+                payment_amount=form.payment_amount.data,
+                comments=form.comments.data,
+                user_id=current_user.id
+            )
+            db.session.add(reservation)
+            db.session.commit()
+            flash(f'Hola {current_user.username}, ya hemos actualizado tu reserva en la cancha {reservation.court.name} con Hora de Inicio {reservation.start_time} y Hora de Termino {reservation.end_time}, recuerda llegar 10 minutos antes para que puedas comenzar a la hora, te esperamos!', 'success')
+            return redirect(url_for('calendar'))
+
+    else:
+        # Si no hay fecha proporcionada, usa la fecha actual
+        date = form.date.data or datetime.today().date()
+        court_id = form.court_id.data
+        use_type = form.use_type.data
+        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
+
+    # Actualizar las opciones del campo de selección de canchas
+    if form.start_time.data:
+        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(form.start_time.data)]
+    else:
+        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(datetime.now())]
+
+    return render_template('reservation.html', title='Reservar', form=form)
+
+class EditReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])
     start_time = SelectField('Hora de Inicio', choices=[])
-    court_id = SelectField('Cancha', choices=[], coerce=int, validators=[DataRequired()])
+    court_id = SelectField('Cancha', choices=[])
     use_type = SelectField('Tipo de uso', choices=[
         ('amistoso', 'Amistoso'),
         ('liga', 'Liga'),
@@ -113,8 +124,8 @@ class ReservationForm(FlaskForm):
         ('a', 'A'),
         ('b', 'B')
     ], validators=[Optional()])
-    player1 = StringField('Jugador 1', validators=[Length(max=64)])
-    player1_is_member = BooleanField('Jugador 1 es socio', default=False)
+    player1 = StringField('Jugador 1', render_kw={'readonly': True})
+    player1_is_member = BooleanField('Jugador 1 es socio', default=False, render_kw={'readonly': True})
     player2 = StringField('Jugador 2', validators=[Optional()])
     player2_is_member = BooleanField('¿Es socio?', validators=[Optional()])
     player3 = StringField('Jugador 3', validators=[Optional()])
@@ -136,17 +147,13 @@ class ReservationForm(FlaskForm):
     is_paid = BooleanField('Pagado')
     payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])
     comments = TextAreaField('Comentarios')
-    submit = SubmitField('Reservar')
+    submit = SubmitField('Guardar')
 
     def __init__(self, *args, **kwargs):
-        super(ReservationForm, self).__init__(*args, **kwargs)
-        date = self.date.data or datetime.today().date()
-        court_id = self.court_id.data
-        use_type = self.use_type.data
-        if date and court_id and use_type:
-            self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
-        else:
-            self.start_time.choices = []
+        super(EditReservationForm, self).__init__(*args, **kwargs)
+        self.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+        self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.date.data, self.court_id.data, self.use_type.data)]
+
 class DateRangeForm(FlaskForm):
     start_date = DateField('Fecha de Inicio', validators=[DataRequired()])
     end_date = DateField('Fecha de Término', validators=[DataRequired()])
