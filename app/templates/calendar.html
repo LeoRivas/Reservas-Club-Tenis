@@ -25,6 +25,7 @@
                 <td>{{ time }}</td>
                 {% for court in courts %}
                 <td>
+                    {% set reservation_found = false %}
                     {% for reservation in reservations %}
                         {% if reservation.court_id == court.id and reservation.start_time.strftime('%H:%M') <= time < reservation.end_time.strftime('%H:%M') %}
                             <div class="reservation" style="background-color: {{ reservation.color }};">
@@ -32,8 +33,12 @@
                                 {{ reservation.use_type }}<br>
                                 {{ reservation.players }}
                             </div>
+                            {% set reservation_found = true %}
                         {% endif %}
                     {% endfor %}
+                    {% if not reservation_found %}
+                        <!-- Aquí puedes agregar cualquier contenido para las celdas sin reservas -->
+                    {% endif %}
                 </td>
                 {% endfor %}
             </tr>
