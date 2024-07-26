@@ -2,21 +2,15 @@ from datetime import datetime, time, timedelta
 from app.models import Court, Reservation
 
 def get_available_times(date, court_id, use_type):
-    if date is None:
-        raise ValueError("La fecha no puede ser None")
-
-    if isinstance(date, str):
-        date = datetime.strptime(date, '%Y-%m-%d')
-
     weekday_hours = [(8, 30), (23, 0)]
     saturday_hours = [(8, 30), (18, 0)]
     sunday_hours = [(8, 30), (13, 0)]
 
-    if date.weekday() < 5:
+    if date.weekday() < 5:  # Lunes a viernes
         opening_hour, closing_hour = weekday_hours
-    elif date.weekday() == 5:
+    elif date.weekday() == 5:  # Sábado
         opening_hour, closing_hour = saturday_hours
-    else:
+    else:  # Domingo
         opening_hour, closing_hour = sunday_hours
 
     times = []
@@ -44,4 +38,5 @@ def check_availability(date, start_time, end_time):
             available_courts = [court for court in available_courts if court.id != reservation.court_id]
 
     return available_courts
+
 
