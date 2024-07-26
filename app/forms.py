@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Nu
 from app.models import User, Court, Reservation
 from app.utils import get_available_times
 from flask_login import current_user
+from datetime import datetime
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -79,12 +80,14 @@ class ReservationForm(FlaskForm):
     submit = SubmitField('Guardar')
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        date = self.date.data or datetime.today().date()
-        court_id = self.court_id.data
-        use_type = self.use_type.data
-        self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
-
+         super(ReservationForm, self).__init__(*args, **kwargs)
+         date = self.date.data or datetime.today().date()
+         court_id = self.court_id.data
+         use_type = self.use_type.data
+         if date and court_id and use_type:
+             self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
+         else:
+             self.start_time.choices = []
 class EditReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])
     start_time = SelectField('Hora de Inicio', choices=[])
