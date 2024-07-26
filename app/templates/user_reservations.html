@@ -1,33 +1,31 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h2>Mis Reservas</h2>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Cancha</th>
-            <th>Fecha</th>
-            <th>Hora de Inicio</th>
-            <th>Hora de Fin</th>
-            <th>Tipo de Uso</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for reservation in reservations %}
-        <tr>
-            <td>{{ reservation.id }}</td>
-            <td>{{ reservation.court.name }}</td>
-            <td>{{ reservation.date }}</td>
-            <td>{{ reservation.start_time }}</td>
-            <td>{{ reservation.end_time }}</td>
-            <td>{{ reservation.use_type }}</td>
-            <td>
-                <a href="{{ url_for('edit_reservation_user', reservation_id=reservation.id) }}" class="btn btn-primary btn-sm">Editar</a>            
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <h1>Mis Reservas</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora de inicio</th>
+                <th>Hora de fin</th>
+                <th>Cancha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+                <tr>
+                    <td>{{ reservation.date }}</td>
+                    <td>{{ reservation.start_time }}</td>
+                    <td>{{ reservation.end_time }}</td>
+                    <td>{{ reservation.court.name }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_user_reservation', reservation_id=reservation.id) }}" class="btn btn-primary btn-sm">Editar</a>
+                        <form action="{{ url_for('delete_reservation', reservation_id=reservation.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

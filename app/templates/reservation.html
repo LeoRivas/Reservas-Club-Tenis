@@ -11,17 +11,14 @@
             {{ form.start_time.label(class="form-label") }}
             {{ form.start_time(class="form-control", id="time-field") }}
         </div>
+        <div class="form-group">
+            {{ form.court_id.label(class="form-label") }}
+            {{ form.court_id(class="form-control", id="court-field") }}
         </div>
         <div class="form-group">
-                    {{ form.court_id.label(class="form-label") }}
-                    {{ form.court_id(class="form-control", id="court-field") }}
-        </div>
-
-         <div class="form-group">
             {{ form.use_type.label(class="form-label") }}
             {{ form.use_type(class="form-control") }}
         </div>
-       
         <div class="form-group" id="game_type_div">
             {{ form.game_type.label(class="form-label") }}
             {{ form.game_type(class="form-control", id="game_type") }}
@@ -104,20 +101,10 @@
         }
     }
     </script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const useTypeField = document.getElementById('use_type');
             const gameTypeField = document.getElementById('game_type');
-
-            // Añadir esta línea para depurar
-            console.log('useTypeField:', useTypeField);
-            console.log('gameTypeField:', gameTypeField);
-
-            if (!useTypeField || !gameTypeField) {
-                console.error('useTypeField or gameTypeField is not defined');
-                return;
-            }
 
             const gameTypeDiv = document.getElementById('game_type_div');
             const leagueCategoryDiv = document.getElementById('league_category_div');
@@ -133,7 +120,6 @@
                 const useType = useTypeField.value;
                 const gameType = gameTypeField.value;
 
-                // Hide all fields initially
                 if (gameTypeDiv) gameTypeDiv.style.display = 'none';
                 if (leagueCategoryDiv) leagueCategoryDiv.style.display = 'none';
                 if (eliteCategoryDiv) eliteCategoryDiv.style.display = 'none';
@@ -144,7 +130,6 @@
                 if (player4Div) player4Div.style.display = 'none';
                 if (trainerDiv) trainerDiv.style.display = 'none';
 
-                // Show fields based on use type
                 if (useType === 'amistoso') {
                     if (gameTypeDiv) gameTypeDiv.style.display = 'block';
                     if (gameType === 'singles') {
@@ -188,7 +173,7 @@
 
             useTypeField.addEventListener('change', updateFields);
             gameTypeField.addEventListener('change', updateFields);
-            updateFields(); // Initial call
+            updateFields(); 
         });
     </script>
 {% endblock %}
