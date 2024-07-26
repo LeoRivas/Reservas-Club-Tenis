@@ -1,10 +1,8 @@
 from datetime import datetime, time, timedelta
 from app.models import Court, Reservation
 
-
 def get_available_times(date, court_id, use_type):
-    if date is None:
-        return []
+    from datetime import datetime, time, timedelta
 
     # Horarios del club
     weekday_hours = [(8, 30), (23, 0)]
@@ -28,7 +26,7 @@ def get_available_times(date, court_id, use_type):
         current_time += timedelta(minutes=5)
 
     # Filtrar horarios ya reservados si court_id está presente
-    if court_id is not None:
+    if court_id:
         reservations = Reservation.query.filter_by(date=date, court_id=court_id).all()
         reserved_times = [(datetime.combine(date, r.start_time), datetime.combine(date, r.end_time)) for r in reservations]
         available_times = [t for t in times if all(not (start <= datetime.combine(date, t) < end) for start, end in reserved_times)]
@@ -37,21 +35,13 @@ def get_available_times(date, court_id, use_type):
     return times
 
 
-    return available_times
-def get_available_courts(date_str, start_time_str):
-    date = datetime.strptime(date_str, '%Y-%m-%d').date()
-    start_time = datetime.strptime(start_time_str, '%H:%M').time()
-    end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=90)).time()
+def get_available_courts(start_time, end_time):
+    reservations = Reservation.query.filter(
+        Reservation.start_time < end_time,
+        Reservation.end_time > start_time
+    ).all()
 
-    all_courts = Court.query.all()
-    available_courts = []
-
-    for court in all_courts:
-        reservations = Reservation.query.filter_by(date=date, court_id=court.id).all()
-        is_available = all(not (reservation.start_time <= start_time < reservation.end_time or
-                                reservation.start_time < end_time <= reservation.end_time)
-                           for reservation in reservations)
-        if is_available:
-            available_courts.append({'id': court.id, 'name': court.name})
+    reserved_court_ids = [reservation.court_id for reservation in reservations]
+    available_courts = Court.query.filter(Court.id.notin_(reserved_court_ids)).all()
 
     return available_courts
