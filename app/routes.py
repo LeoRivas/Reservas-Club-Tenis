@@ -133,7 +133,6 @@ def check_availability(date, start_time, end_time, court_id=None):
 
         return render_template('reservation.html', title='Reservar', form=form)
 
-
 @app.route('/edit_reservation/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required
 def edit_reservation(reservation_id):
