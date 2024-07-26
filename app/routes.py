@@ -132,27 +132,26 @@ def edit_reservation(reservation_id):
 
     return render_template('edit_reservation.html', title='Edit Reservation', form=form)
 
-@app.route('/reserve', methods=['GET', 'POST'])
-@login_required
-def reserve():
+    @app.route('/reserve', methods=['GET', 'POST'])
+    @login_required
+    def reserve():
         form = ReservationForm()
         if form.validate_on_submit():
             start_time = form.start_time.data
-            date = form.date.data
-            court_id = form.court_id.data
+            end_time = form.end_time.data  # Asegúrate de que este dato se esté recogiendo del formulario
 
             # Obtener canchas disponibles
-            available_courts = get_available_courts(start_time)
+            available_courts = get_available_courts(start_time, end_time)
             available_court_names = ', '.join([court.name for court in available_courts])
 
+            court_id = form.court_id.data
             if court_id not in [court.id for court in available_courts]:
                 flash(f'La cancha seleccionada no está disponible en el horario seleccionado. Sin embargo, las siguientes canchas están disponibles: {available_court_names}. Por favor, seleccione una cancha disponible.', 'danger')
             else:
                 # Manejo de la lógica de la reserva
-                end_time = (datetime.combine(date, datetime.strptime(start_time, "%H:%M").time()) + timedelta(hours=1)).time()
                 reservation = Reservation(
                     court_id=court_id,
-                    date=date,
+                    date=form.date.data,
                     start_time=start_time,
                     end_time=end_time,
                     use_type=form.use_type.data,
@@ -193,6 +192,7 @@ def reserve():
             form.court_id.choices = [(court.id, court.name) for court in get_available_courts(datetime.now())]
 
         return render_template('reservation.html', title='Reservar', form=form)
+
 
 @app.route('/edit_user_reservation/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required
