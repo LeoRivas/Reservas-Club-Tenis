@@ -1,8 +1,15 @@
 from datetime import datetime, time, timedelta
 from app.models import Court, Reservation
 
+
 def get_available_times(date, court_id, use_type):
-    from datetime import datetime, time, timedelta
+    # Validar que la fecha no sea None
+    if date is None:
+        raise ValueError("La fecha no puede ser None")
+
+    # Convertir date a objeto datetime si es una cadena
+    if isinstance(date, str):
+        date = datetime.strptime(date, '%Y-%m-%d')
 
     # Horarios del club
     weekday_hours = [(8, 30), (23, 0)]
@@ -33,6 +40,7 @@ def get_available_times(date, court_id, use_type):
         return available_times
 
     return times
+
 
 
 def get_available_courts(start_time, end_time):
