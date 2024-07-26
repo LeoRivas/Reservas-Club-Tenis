@@ -138,7 +138,7 @@ def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
         start_time = form.start_time.data
-        end_time = form.end_time.data  # Asegúrate de que este dato se esté recogiendo del formulario
+        end_time = form.end_time.data
 
         # Obtener canchas disponibles
         available_courts = get_available_courts(start_time, end_time)
@@ -179,16 +179,14 @@ def reserve():
             return redirect(url_for('calendar'))
 
     else:
-        # Si no hay fecha proporcionada, usa la fecha actual
         date = form.date.data or datetime.today().date()
         court_id = form.court_id.data
         use_type = form.use_type.data
         form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
 
-    # Actualizar las opciones del campo de selección de canchas
     if form.start_time.data:
         start_time = form.start_time.data
-        end_time = start_time + timedelta(hours=1)  # Puedes ajustar la duración según sea necesario
+        end_time = start_time + timedelta(hours=1)
         form.court_id.choices = [(court.id, court.name) for court in get_available_courts(start_time, end_time)]
     else:
         start_time = datetime.now()
