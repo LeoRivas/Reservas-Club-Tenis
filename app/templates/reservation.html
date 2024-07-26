@@ -1,28 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>Reserva una cancha</h1>
-    <form method="POST">
+    <form method="POST" action="{{ url_for('reserve') }}">
         {{ form.hidden_tag() }}
         <div class="form-group">
             {{ form.date.label(class="form-label") }}
-            {{ form.date(class="form-control") }}
+            {{ form.date(class="form-control", id="date-field") }}
         </div>
         <div class="form-group">
             {{ form.start_time.label(class="form-label") }}
-            <select class="form-control" id="start_time" name="start_time">
-                {% for time in form.start_time.choices %}
-                    <option value="{{ time[0] }}">{{ time[1] }}</option>
-                {% endfor %}
-            </select>
+            {{ form.start_time(class="form-control", id="time-field") }}
+        </div>
+        </div>
+        <div class="form-group">
+                    {{ form.court_id.label(class="form-label") }}
+                    {{ form.court_id(class="form-control", id="court-field") }}
         </div>
 
          <div class="form-group">
             {{ form.use_type.label(class="form-label") }}
             {{ form.use_type(class="form-control") }}
-        </div>
-        <div class="form-group">
-            {{ form.court_id.label(class="form-label") }}
-            {{ form.court_id(class="form-control") }}
         </div>
        
         <div class="form-group" id="game_type_div">
@@ -83,6 +80,30 @@
         </div>
         <button type="submit" class="btn btn-primary">Reservar</button>
     </form>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    document.getElementById('date-field').addEventListener('change', updateCourts);
+    document.getElementById('time-field').addEventListener('change', updateCourts);
+
+    function updateCourts() {
+        var date = document.getElementById('date-field').value;
+        var time = document.getElementById('time-field').value;
+        if (date && time) {
+            fetch(`/get_available_courts?date=${date}&time=${time}`)
+                .then(response => response.json())
+                .then(data => {
+                    var courtField = document.getElementById('court-field');
+                    courtField.innerHTML = '';
+                    data.courts.forEach(court => {
+                        var option = document.createElement('option');
+                        option.value = court.id;
+                        option.textContent = court.name;
+                        courtField.appendChild(option);
+                    });
+                });
+        }
+    }
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
