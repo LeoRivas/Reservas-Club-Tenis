@@ -1,182 +1,151 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Reservar Cancha</h1>
-    <form method="POST" action="{{ url_for('reserve') }}">
-        {{ form.hidden_tag() }}
+<h1>Reservar Cancha</h1>
+<form method="POST" action="{{ url_for('reserve') }}">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.date.label(class="form-label") }}
+        {{ form.date(class="form-control", id="date") }}
+    </div>
+    <div class="form-group">
+        {{ form.start_time.label(class="form-label") }}
+        {{ form.start_time(class="form-control", id="start_time") }}
+    </div>
+    <div class="form-group">
+        {{ form.court_id.label(class="form-label") }}
+        <select id="court_id" name="court_id" class="form-control">
+            <option value="">Selecciona una hora primero</option>
+        </select>
+    </div>
+    <div class="form-group">
+        {{ form.use_type.label(class="form-label") }}
+        {{ form.use_type(class="form-control", id="use_type") }}
+    </div>
+    <div class="form-group" id="game_type_div" style="display: none;">
+        {{ form.game_type.label(class="form-label") }}
+        {{ form.game_type(class="form-control") }}
+    </div>
+    <div class="form-group" id="league_category_div" style="display: none;">
+        {{ form.league_category.label(class="form-label") }}
+        {{ form.league_category(class="form-control") }}
+    </div>
+    <div class="form-group" id="elite_category_div" style="display: none;">
+        {{ form.elite_category.label(class="form-label") }}
+        {{ form.elite_category(class="form-control") }}
+    </div>
+    <div class="form-group" id="academy_category_div" style="display: none;">
+        {{ form.academy_category.label(class="form-label") }}
+        {{ form.academy_category(class="form-control") }}
+    </div>
+    <div id="players_div" style="display: none;">
         <div class="form-group">
-            {{ form.date.label(class="form-label") }}
-            {{ form.date(class="form-control", id="date-field") }}
-        </div>
-        <div class="form-group">
-            {{ form.start_time.label(class="form-label") }}
-            {{ form.start_time(class="form-control", id="time-field") }}
-        </div>
-        <div class="form-group">
-            {{ form.court_id.label(class="form-label") }}
-            {{ form.court_id(class="form-control", id="court-field") }}
-        </div>
-        <div class="form-group">
-            {{ form.use_type.label(class="form-label") }}
-            {{ form.use_type(class="form-control", id="use-type-field") }}
-        </div>
-        <div class="form-group" id="game_type_div">
-            {{ form.game_type.label(class="form-label") }}
-            {{ form.game_type(class="form-control") }}
-        </div>
-        <div class="form-group" id="league_category_div">
-            {{ form.league_category.label(class="form-label") }}
-            {{ form.league_category(class="form-control") }}
-        </div>
-        <div class="form-group" id="elite_category_div">
-            {{ form.elite_category.label(class="form-label") }}
-            {{ form.elite_category(class="form-control") }}
-        </div>
-        <div class="form-group" id="academy_category_div">
-            {{ form.academy_category.label(class="form-label") }}
-            {{ form.academy_category(class="form-control") }}
-        </div>
-        <div class="form-group" id="player1_div">
             {{ form.player1.label(class="form-label") }}
-            {{ form.player1(class="form-control") }}
+            {{ form.player1(class="form-control", value=current_user.username, readonly=True) }}
+        </div>
+        <div class="form-group">
             {{ form.player1_is_member.label(class="form-check-label") }}
             {{ form.player1_is_member(class="form-check-input") }}
         </div>
-        <div class="form-group" id="player2_div">
+        <div class="form-group">
             {{ form.player2.label(class="form-label") }}
             {{ form.player2(class="form-control") }}
+        </div>
+        <div class="form-group">
             {{ form.player2_is_member.label(class="form-check-label") }}
             {{ form.player2_is_member(class="form-check-input") }}
         </div>
-        <div class="form-group" id="player3_div">
+        <div class="form-group" id="player3_div" style="display: none;">
             {{ form.player3.label(class="form-label") }}
             {{ form.player3(class="form-control") }}
+        </div>
+        <div class="form-group" id="player3_is_member_div" style="display: none;">
             {{ form.player3_is_member.label(class="form-check-label") }}
             {{ form.player3_is_member(class="form-check-input") }}
         </div>
-        <div class="form-group" id="player4_div">
+        <div class="form-group" id="player4_div" style="display: none;">
             {{ form.player4.label(class="form-label") }}
             {{ form.player4(class="form-control") }}
+        </div>
+        <div class="form-group" id="player4_is_member_div" style="display: none;">
             {{ form.player4_is_member.label(class="form-check-label") }}
             {{ form.player4_is_member(class="form-check-input") }}
         </div>
-        <div class="form-group" id="trainer_div">
-            {{ form.trainer.label(class="form-label") }}
-            {{ form.trainer(class="form-control") }}
-        </div>
-        <div class="form-group">
-            {{ form.is_paid.label(class="form-check-label") }}
-            {{ form.is_paid(class="form-check-input") }}
-        </div>
-        <div class="form-group">
-            {{ form.payment_amount.label(class="form-label") }}
-            {{ form.payment_amount(class="form-control") }}
-        </div>
-        <div class="form-group">
-            {{ form.comments.label(class="form-label") }}
-            {{ form.comments(class="form-control") }}
-        </div>
-        <button type="submit" class="btn btn-primary">Reservar</button>
-    </form>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-    document.getElementById('date-field').addEventListener('change', updateCourts);
-    document.getElementById('time-field').addEventListener('change', updateCourts);
-    document.getElementById('use-type-field').addEventListener('change', updateCourts);
+    </div>
+    <div class="form-group" id="trainer_div" style="display: none;">
+        {{ form.trainer.label(class="form-label") }}
+        {{ form.trainer(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.is_paid.label(class="form-check-label") }}
+        {{ form.is_paid(class="form-check-input") }}
+    </div>
+    <div class="form-group">
+        {{ form.payment_amount.label(class="form-label") }}
+        {{ form.payment_amount(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.comments.label(class="form-label") }}
+        {{ form.comments(class="form-control") }}
+    </div>
+    <button type="submit" class="btn btn-primary">Reservar</button>
+</form>
 
-    function updateCourts() {
-        var date = document.getElementById('date-field').value;
-        var time = document.getElementById('time-field').value;
-        var useType = document.getElementById('use-type-field').value;
-        if (date && time && useType) {
-            fetch(`/get_available_courts?date=${date}&time=${time}&use_type=${useType}`)
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function updateCourtOptions() {
+        var date = document.getElementById('date').value;
+        var startTime = document.getElementById('start_time').value;
+        var useType = document.getElementById('use_type').value;
+
+        if (date && startTime) {
+            fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}`)
                 .then(response => response.json())
                 .then(data => {
-                    var courtField = document.getElementById('court-field');
-                    courtField.innerHTML = '';
-                    data.courts.forEach(court => {
+                    var courtSelect = document.getElementById('court_id');
+                    courtSelect.innerHTML = '';
+                    data.courts.forEach(function(court) {
                         var option = document.createElement('option');
                         option.value = court.id;
-                        option.textContent = court.name;
-                        courtField.appendChild(option);
+                        option.text = court.name;
+                        courtSelect.add(option);
                     });
                 });
         }
     }
-    </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const useTypeField = document.getElementById('use_type');
-            const gameTypeField = document.getElementById('game_type');
+    function updateFields() {
+        var useType = document.getElementById('use_type').value;
 
-            const gameTypeDiv = document.getElementById('game_type_div');
-            const leagueCategoryDiv = document.getElementById('league_category_div');
-            const eliteCategoryDiv = document.getElementById('elite_category_div');
-            const academyCategoryDiv = document.getElementById('academy_category_div');
-            const player1Div = document.getElementById('player1_div');
-            const player2Div = document.getElementById('player2_div');
-            const player3Div = document.getElementById('player3_div');
-            const player4Div = document.getElementById('player4_div');
-            const trainerDiv = document.getElementById('trainer_div');
+        document.getElementById('game_type_div').style.display = (useType === 'liga' || useType === 'amistoso') ? 'block' : 'none';
+        document.getElementById('league_category_div').style.display = useType === 'liga' ? 'block' : 'none';
+        document.getElementById('elite_category_div').style.display = useType === 'entrenamiento' ? 'block' : 'none';
+        document.getElementById('academy_category_div').style.display = useType === 'academia' ? 'block' : 'none';
 
-            function updateFields() {
-                const useType = useTypeField.value;
-                const gameType = gameTypeField.value;
+        var showPlayers = (useType === 'amistoso' || useType === 'liga');
+        var showTrainer = (useType === 'entrenamiento' || useType === 'academia');
 
-                if (gameTypeDiv) gameTypeDiv.style.display = 'none';
-                if (leagueCategoryDiv) leagueCategoryDiv.style.display = 'none';
-                if (eliteCategoryDiv) eliteCategoryDiv.style.display = 'none';
-                if (academyCategoryDiv) academyCategoryDiv.style.display = 'none';
-                if (player1Div) player1Div.style.display = 'none';
-                if (player2Div) player2Div.style.display = 'none';
-                if (player3Div) player3Div.style.display = 'none';
-                if (player4Div) player4Div.style.display = 'none';
-                if (trainerDiv) trainerDiv.style.display = 'none';
+        document.getElementById('players_div').style.display = showPlayers ? 'block' : 'none';
+        document.getElementById('trainer_div').style.display = showTrainer ? 'block' : 'none';
 
-                if (useType === 'amistoso') {
-                    if (gameTypeDiv) gameTypeDiv.style.display = 'block';
-                    if (gameType === 'singles') {
-                        if (player1Div) player1Div.style.display = 'block';
-                        if (player2Div) player2Div.style.display = 'block';
-                    } else if (gameType === 'doubles') {
-                        if (player1Div) player1Div.style.display = 'block';
-                        if (player2Div) player2Div.style.display = 'block';
-                        if (player3Div) player3Div.style.display = 'block';
-                        if (player4Div) player4Div.style.display = 'block';
-                    }
-                } else if (useType === 'liga') {
-                    if (leagueCategoryDiv) leagueCategoryDiv.style.display = 'block';
-                    if (gameTypeDiv) gameTypeDiv.style.display = 'block';
-                    if (gameType === 'singles') {
-                        if (player1Div) player1Div.style.display = 'block';
-                        if (player2Div) player2Div.style.display = 'block';
-                    } else if (gameType === 'doubles') {
-                        if (player1Div) player1Div.style.display = 'block';
-                        if (player2Div) player2Div.style.display = 'block';
-                        if (player3Div) player3Div.style.display = 'block';
-                        if (player4Div) player4Div.style.display = 'block';
-                    }
-                } else if (useType === 'entrenamiento_individual') {
-                    if (player1Div) player1Div.style.display = 'block';
-                    if (trainerDiv) trainerDiv.style.display = 'block';
-                } else if (useType === 'entrenamiento_grupal') {
-                    if (player1Div) player1Div.style.display = 'block';
-                    if (player2Div) player2Div.style.display = 'block';
-                    if (player3Div) player3Div.style.display = 'block';
-                    if (player4Div) player4Div.style.display = 'block';
-                    if (trainerDiv) trainerDiv.style.display = 'block';
-                } else if (useType === 'elite') {
-                    if (eliteCategoryDiv) eliteCategoryDiv.style.display = 'block';
-                    if (trainerDiv) trainerDiv.style.display = 'block';
-                } else if (useType === 'academia_interna') {
-                    if (academyCategoryDiv) academyCategoryDiv.style.display = 'block';
-                    if (trainerDiv) trainerDiv.style.display = 'block';
-                }
-            }
+        var gameType = document.getElementById('game_type').value;
+        var isDoubles = gameType === 'dobles';
 
-            useTypeField.addEventListener('change', updateFields);
-            gameTypeField.addEventListener('change', updateFields);
-            updateFields(); 
-        });
-    </script>
+        document.getElementById('player3_div').style.display = isDoubles ? 'block' : 'none';
+        document.getElementById('player3_is_member_div').style.display = isDoubles ? 'block' : 'none';
+        document.getElementById('player4_div').style.display = isDoubles ? 'block' : 'none';
+        document.getElementById('player4_is_member_div').style.display = isDoubles ? 'block' : 'none';
+    }
+
+    document.getElementById('date').addEventListener('change', updateCourtOptions);
+    document.getElementById('start_time').addEventListener('change', updateCourtOptions);
+    document.getElementById('use_type').addEventListener('change', function() {
+        updateCourtOptions();
+        updateFields();
+    });
+
+    document.getElementById('game_type').addEventListener('change', updateFields);
+
+    updateFields(); // Call this initially to set the correct fields on page load
+});
+</script>
 {% endblock %}
