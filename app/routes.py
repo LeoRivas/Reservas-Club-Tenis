@@ -215,25 +215,18 @@ def edit_reservation_user(reservation_id):
     return render_template('edit_reservation_user.html', form=form, reservation=reservation)
 
 @app.route('/get_available_courts', methods=['GET'])
-@login_required
 def get_available_courts():
-    date = request.args.get('date')
-    start_time = request.args.get('time')
-
-    if date and start_time:
-        date = datetime.strptime(date, '%Y-%m-%d').date()
-        start_time = datetime.strptime(start_time, '%H:%M').time()
-        use_type = request.args.get('use_type', None)
-
-        if use_type in ['amistoso', 'liga']:
-            end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=90)).time()
-        else:
-            end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=60)).time()
-
-        available_courts = check_availability(date, start_time, end_time)
-        court_choices = [{'id': court.id, 'name': court.name} for court in available_courts]
-        return jsonify({'courts': court_choices})
-    return jsonify({'courts': []})
+    date_str = request.args.get('date')
+    start_time_str = request.args.get('start_time')
+    use_type = request.args.get('use_type')
+    
+    date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    start_time = datetime.strptime(start_time_str, "%H:%M").time()
+    
+    available_courts = utils.get_available_courts(date, start_time, use_type)
+    
+    courts = [{'id': court.id, 'name': court.name} for court in available_courts]
+    return jsonify({'courts': courts})
 
 
     
