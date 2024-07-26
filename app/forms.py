@@ -79,9 +79,11 @@ class ReservationForm(FlaskForm):
     submit = SubmitField('Guardar')
 
     def __init__(self, *args, **kwargs):
-        super(ReservationForm, self).__init__(*args, **kwargs)
-        self.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
-        self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.date.data, self.court_id.data, self.use_type.data)]
+        super().__init__(*args, **kwargs)
+        date = self.date.data or datetime.today().date()
+        court_id = self.court_id.data
+        use_type = self.use_type.data
+        self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
 
 class EditReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])

@@ -77,28 +77,32 @@ def check_availability(date, start_time, end_time, court_id=None):
             return False, available_courts
     return True, available_courts
 
+from datetime import datetime
+
 @app.route('/reserve', methods=['GET', 'POST'])
 @login_required
 def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
         start_time = form.start_time.data
-        end_time = form.end_time.data
-        use_type = form.use_type.data
+        end_time = form.end_time.data  # Asegúrate de tener este campo en el formulario si es necesario
+        date = form.date.data
+        court_id = form.court_id.data
 
         # Obtener canchas disponibles
         available_courts = get_available_courts(start_time, end_time)
         available_court_names = ', '.join([court.name for court in available_courts])
-        
-        if form.court_id.data not in [court.id for court in available_courts]:
+
+        if court_id not in [court.id for court in available_courts]:
             flash(f'La cancha seleccionada no está disponible en el horario seleccionado. Sin embargo, las siguientes canchas están disponibles: {available_court_names}. Por favor, seleccione una cancha disponible.', 'danger')
         else:
+            # Manejo de la lógica de la reserva
             reservation = Reservation(
-                court_id=form.court_id.data,
-                date=form.date.data,
+                court_id=court_id,
+                date=date,
                 start_time=start_time,
                 end_time=end_time,
-                use_type=use_type,
+                use_type=form.use_type.data,
                 game_type=form.game_type.data,
                 league_category=form.league_category.data,
                 player1=form.player1.data,
@@ -120,15 +124,20 @@ def reserve():
             db.session.add(reservation)
             db.session.commit()
             flash(f'Hola {current_user.username}, ya hemos actualizado tu reserva en la cancha {reservation.court.name} con Hora de Inicio {reservation.start_time.strftime("%H:%M")} y Hora de Termino {reservation.end_time.strftime("%H:%M")}, recuerda llegar 10 minutos antes para que puedas comenzar a la hora, te esperamos!', 'success')
-            return redirect(url_for('index'))
-    
+            return redirect(url_for('calendar'))
+    else:
+        # Si no hay fecha proporcionada, usa la fecha actual
+        date = form.date.data or datetime.today().date()
+        court_id = form.court_id.data
+        use_type = form.use_type.data
+        if date and court_id and use_type:
+            form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
+        else:
+            form.start_time.choices = []
+
     # Actualizar las opciones del campo de selección de canchas
     if form.start_time.data and form.end_time.data:
-        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(form.start_time.data, form.end_time.data)]
-    else:
-        form.court_id.choices = [(court.id, court.name) for court in get_available_courts(datetime.now(), datetime.now())]
-
-    return render_template('reserve.html', title='Reserve', form=form)
+        form.court_id.choices = [(court.id, court.name) for court in
 
 
 
@@ -137,18 +146,22 @@ def reserve():
 def edit_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     form = EditReservationForm(obj=reservation)
+
     if form.validate_on_submit():
         start_time = form.start_time.data
         end_time = form.end_time.data
+        date = form.date.data
+        court_id = form.court_id.data
 
         # Obtener canchas disponibles
         available_courts = get_available_courts(start_time, end_time)
         available_court_names = ', '.join([court.name for court in available_courts])
-        
-        if form.court_id.data not in [court.id for court in available_courts]:
+
+        if court_id not in [court.id for court in available_courts]:
             flash(f'La cancha seleccionada no está disponible en el horario seleccionado. Sin embargo, las siguientes canchas están disponibles: {available_court_names}. Por favor, seleccione una cancha disponible.', 'danger')
         else:
-            reservation.court_id = form.court_id.data
+            reservation.court_id = court_id
+            reservation.date = date
             reservation.start_time = start_time
             reservation.end_time = end_time
             reservation.use_type = form.use_type.data
@@ -168,10 +181,17 @@ def edit_reservation(reservation_id):
             reservation.is_paid = form.is_paid.data
             reservation.payment_amount = form.payment_amount.data
             reservation.comments = form.comments.data
+
             db.session.commit()
-            flash(f'Hola {current_user.username}, ya hemos actualizado tu reserva en la cancha {reservation.court.name} con Hora de Inicio {reservation.start_time.strftime("%H:%M")} y Hora de Termino {reservation.end_time.strftime("%H:%M")}, recuerda llegar 10 minutos antes para que puedas comenzar a la hora, te esperamos!', 'success')
-            return redirect(url_for('index'))
-    
+            flash('Reserva actualizada exitosamente.', 'success')
+            return redirect(url_for('admin_dashboard'))
+
+    else:
+        date = form.date.data or reservation.date
+        court_id = form.court_id.data
+        use_type = form.use_type.data
+        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
+
     # Actualizar las opciones del campo de selección de canchas
     if form.start_time.data and form.end_time.data:
         form.court_id.choices = [(court.id, court.name) for court in get_available_courts(form.start_time.data, form.end_time.data)]
@@ -181,26 +201,27 @@ def edit_reservation(reservation_id):
     return render_template('edit_reservation.html', title='Edit Reservation', form=form)
 
         
-@app.route('/edit_reservation_user/<int:reservation_id>', methods=['GET', 'POST'])
+@app.route('/edit_user_reservation/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required
-def edit_reservation_user(reservation_id):
+def edit_user_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
-    if reservation.user_id != current_user.id:
-        abort(403)
-
     form = EditReservationForm(obj=reservation)
+
     if form.validate_on_submit():
         start_time = form.start_time.data
         end_time = form.end_time.data
+        date = form.date.data
+        court_id = form.court_id.data
 
         # Obtener canchas disponibles
         available_courts = get_available_courts(start_time, end_time)
         available_court_names = ', '.join([court.name for court in available_courts])
-        
-        if form.court_id.data not in [court.id for court in available_courts]:
+
+        if court_id not in [court.id for court in available_courts]:
             flash(f'La cancha seleccionada no está disponible en el horario seleccionado. Sin embargo, las siguientes canchas están disponibles: {available_court_names}. Por favor, seleccione una cancha disponible.', 'danger')
         else:
-            reservation.court_id = form.court_id.data
+            reservation.court_id = court_id
+            reservation.date = date
             reservation.start_time = start_time
             reservation.end_time = end_time
             reservation.use_type = form.use_type.data
@@ -220,17 +241,24 @@ def edit_reservation_user(reservation_id):
             reservation.is_paid = form.is_paid.data
             reservation.payment_amount = form.payment_amount.data
             reservation.comments = form.comments.data
+
             db.session.commit()
-            flash('Reserva actualizada con éxito!', 'success')
-            return redirect(url_for('index'))
-    
+            flash('Reserva actualizada exitosamente.', 'success')
+            return redirect(url_for('user_dashboard'))
+
+    else:
+        date = form.date.data or reservation.date
+        court_id = form.court_id.data
+        use_type = form.use_type.data
+        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
+
     # Actualizar las opciones del campo de selección de canchas
     if form.start_time.data and form.end_time.data:
         form.court_id.choices = [(court.id, court.name) for court in get_available_courts(form.start_time.data, form.end_time.data)]
     else:
         form.court_id.choices = [(court.id, court.name) for court in get_available_courts(datetime.now(), datetime.now())]
 
-    return render_template('edit_reservation_user.html', title='Edit Reservation', form=form)
+    return render_template('edit_user_reservation.html', title='Edit User Reservation', form=form)
 
 
 
