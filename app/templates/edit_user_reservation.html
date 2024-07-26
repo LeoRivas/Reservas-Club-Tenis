@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Editar Reserva</h1>
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.date.label(class="form-label") }}
+        {{ form.date(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.court_id.label(class="form-label") }}
+        {{ form.court_id(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.start_time.label(class="form-label") }}
+        {{ form.start_time(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.end_time.label(class="form-label") }}
+        {{ form.end_time(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.use_type.label(class="form-label") }}
+        {{ form.use_type(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.game_type.label(class="form-label") }}
+        {{ form.game_type(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.league_category.label(class="form-label") }}
+        {{ form.league_category(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.player1.label(class="form-label") }}
+        {{ form.player1(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.player1_is_member.label(class="form-label") }}
+        {{ form.player1_is_member(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.player2.label(class="form-label") }}
+        {{ form.player2(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.player2_is_member.label(class="form-label") }}
+        {{ form.player2_is_member(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.player3.label(class="form-label") }}
+        {{ form.player3(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.player3_is_member.label(class="form-label") }}
+        {{ form.player3_is_member(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.player4.label(class="form-label") }}
+        {{ form.player4(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.player4_is_member.label(class="form-label") }}
+        {{ form.player4_is_member(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.trainer.label(class="form-label") }}
+        {{ form.trainer(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.elite_category.label(class="form-label") }}
+        {{ form.elite_category(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.academy_category.label(class="form-label") }}
+        {{ form.academy_category(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.comments.label(class="form-label") }}
+        {{ form.comments(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const dateInput = document.getElementById("date");
+    const courtSelect = document.getElementById("court_id");
+    const startTimeSelect = document.getElementById("start_time");
+    const endTimeSelect = document.getElementById("end_time");
+
+    dateInput.addEventListener("change", updateAvailableCourtsAndTimes);
+    startTimeSelect.addEventListener("change", updateAvailableCourtsAndTimes);
+    endTimeSelect.addEventListener("change", updateAvailableCourtsAndTimes);
+
+    function updateAvailableCourtsAndTimes() {
+        const date = dateInput.value;
+        const startTime = startTimeSelect.value;
+        const endTime = endTimeSelect.value;
+
+        if (date && startTime && endTime) {
+            fetch(`/get_available_courts_and_times?date=${date}&start_time=${startTime}&end_time=${endTime}`)
+                .then(response => response.json())
+                .then(data => {
+                    courtSelect.innerHTML = "";
+                    data.courts.forEach(court => {
+                        const option = document.createElement("option");
+                        option.value = court.id;
+                        option.textContent = court.name;
+                        courtSelect.appendChild(option);
+                    });
+
+                    startTimeSelect.innerHTML = "";
+                    data.times.forEach(time => {
+                        const option = document.createElement("option");
+                        option.value = time;
+                        option.textContent = time;
+                        startTimeSelect.appendChild(option);
+                    });
+
+                    endTimeSelect.innerHTML = "";
+                    data.times.forEach(time => {
+                        const option = document.createElement("option");
+                        option.value = time;
+                        option.textContent = time;
+                        endTimeSelect.appendChild(option);
+                    });
+                });
+        }
+    }
+});
+</script>
+
+{% endblock %}
