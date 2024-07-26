@@ -89,10 +89,10 @@ class ReservationForm(FlaskForm):
             else:
                 self.start_time.choices = []
              self.start_time.choices = []
-class EditReservationForm(FlaskForm):
+class ReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])
     start_time = SelectField('Hora de Inicio', choices=[])
-    court_id = SelectField('Cancha', choices=[])
+    court_id = SelectField('Cancha', choices=[], coerce=int, validators=[DataRequired()])
     use_type = SelectField('Tipo de uso', choices=[
         ('amistoso', 'Amistoso'),
         ('liga', 'Liga'),
@@ -113,8 +113,8 @@ class EditReservationForm(FlaskForm):
         ('a', 'A'),
         ('b', 'B')
     ], validators=[Optional()])
-    player1 = StringField('Jugador 1', render_kw={'readonly': True})
-    player1_is_member = BooleanField('Jugador 1 es socio', default=False, render_kw={'readonly': True})
+    player1 = StringField('Jugador 1', validators=[Length(max=64)])
+    player1_is_member = BooleanField('Jugador 1 es socio', default=False)
     player2 = StringField('Jugador 2', validators=[Optional()])
     player2_is_member = BooleanField('¿Es socio?', validators=[Optional()])
     player3 = StringField('Jugador 3', validators=[Optional()])
@@ -136,13 +136,17 @@ class EditReservationForm(FlaskForm):
     is_paid = BooleanField('Pagado')
     payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])
     comments = TextAreaField('Comentarios')
-    submit = SubmitField('Guardar')
+    submit = SubmitField('Reservar')
 
     def __init__(self, *args, **kwargs):
-        super(EditReservationForm, self).__init__(*args, **kwargs)
-        self.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
-        self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(self.date.data, self.court_id.data, self.use_type.data)]
-
+        super(ReservationForm, self).__init__(*args, **kwargs)
+        date = self.date.data or datetime.today().date()
+        court_id = self.court_id.data
+        use_type = self.use_type.data
+        if date and court_id and use_type:
+            self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
+        else:
+            self.start_time.choices = []
 class DateRangeForm(FlaskForm):
     start_date = DateField('Fecha de Inicio', validators=[DataRequired()])
     end_date = DateField('Fecha de Término', validators=[DataRequired()])

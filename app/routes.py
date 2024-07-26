@@ -131,10 +131,7 @@ def check_availability(date, start_time, end_time, court_id=None):
         else:
             form.court_id.choices = [(court.id, court.name) for court in get_available_courts(datetime.now())]
 
-        return render_template('reservation.html', title='Reserve', form=form)
-
-
-
+        return render_template('reservation.html', title='Reservar', form=form)
 
 
 @app.route('/edit_reservation/<int:reservation_id>', methods=['GET', 'POST'])
