@@ -17,7 +17,7 @@
     </div>
     <div class="form-group" id="game_type_div" style="display: none;">
         {{ form.game_type.label(class="form-label") }}
-        {{ form.game_type(class="form-control", id="game_type") }}
+        {{ form.game_type(class="form-control") }}
     </div>
     <div class="form-group" id="league_category_div" style="display: none;">
         {{ form.league_category.label(class="form-label") }}
@@ -95,33 +95,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('date');
     const startTimeInput = document.getElementById('start_time');
     const useTypeInput = document.getElementById('use_type');
-    const gameTypeSelect = document.getElementById('game_type');
     const courtSelect = document.getElementById('court_id');
-
+    const gameTypeSelect = document.getElementById('game_type');
 
     function updateFields() {
         const useType = useTypeInput.value;
-        const gameType = gameTypeSelect.value;
-
         document.getElementById('game_type_div').style.display = (useType === 'liga' || useType === 'amistoso') ? 'block' : 'none';
         document.getElementById('league_category_div').style.display = useType === 'liga' ? 'block' : 'none';
         document.getElementById('elite_category_div').style.display = useType === 'entrenamiento' ? 'block' : 'none';
         document.getElementById('academy_category_div').style.display = useType === 'academia' ? 'block' : 'none';
-        
+
         const showPlayers = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento');
         const showTrainer = (useType === 'entrenamiento' || useType === 'academia');
         document.getElementById('players_div').style.display = showPlayers ? 'block' : 'none';
         document.getElementById('trainer_div').style.display = showTrainer ? 'block' : 'none';
 
-        const isGroupTraining = useType === 'entrenamiento' && gameType === 'grupal';
-        const isIndividualTraining = useType === 'entrenamiento' && gameType === 'individual';
-        
-        document.getElementById('player3_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
-        document.getElementById('player3_is_member_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
-        document.getElementById('player4_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
-        document.getElementById('player4_is_member_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
-        document.getElementById('player2_div').style.display = !isIndividualTraining ? 'block' : 'none';
-        document.getElementById('player2_is_member_div').style.display = !isIndividualTraining ? 'block' : 'none';
+        if (showPlayers) {
+            const gameType = gameTypeSelect.value;
+            const isDoubles = gameType === 'dobles';
+            document.getElementById('player3_div').style.display = isDoubles ? 'block' : 'none';
+            document.getElementById('player3_is_member_div').style.display = isDoubles ? 'block' : 'none';
+            document.getElementById('player4_div').style.display = isDoubles ? 'block' : 'none';
+            document.getElementById('player4_is_member_div').style.display = isDoubles ? 'block' : 'none';
+        }
 
         // Habilitar la selección de cancha solo si todos los campos necesarios están completos
         const canSelectCourt = dateInput.value && startTimeInput.value && useTypeInput.value && 
