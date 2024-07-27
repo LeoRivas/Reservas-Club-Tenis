@@ -1,5 +1,5 @@
 from flask import render_template, redirect, url_for, flash, request, make_response, jsonify
-from app import app, db
+from app import app, db, utils
 from app.forms import LoginForm, RegistrationForm, ReservationForm, EditReservationForm, DateRangeForm, FormGeneral, FormIngresos, FormNoPagadas
 from app.models import User, Reservation, Court
 from flask_login import current_user, login_user, logout_user, login_required
@@ -9,6 +9,8 @@ from sqlalchemy import func
 import csv
 from io import StringIO
 from app.utils import get_available_times, check_availability
+from app import utils
+
 
 
 
@@ -123,9 +125,10 @@ def reserve():
         return redirect(url_for('index'))
     else:
         form.date.data = datetime.today().date()
-        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(datetime.today().date(), None, None)]
+        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in utils.get_available_times(datetime.today().date(), None, None)]
+        form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     return render_template('reservation.html', form=form)
-
+    
 @app.route('/edit_reservation/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required
 def edit_reservation(reservation_id):
@@ -214,20 +217,19 @@ def edit_reservation_user(reservation_id):
         form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(reservation.date, None, None)]
     return render_template('edit_reservation_user.html', form=form, reservation=reservation)
 
-@app.route('/get_available_courts', methods=['GET'])
+@app.route('/get_available_courts')
 def get_available_courts():
     date_str = request.args.get('date')
     start_time_str = request.args.get('start_time')
     use_type = request.args.get('use_type')
-    
-    date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    start_time = datetime.strptime(start_time_str, "%H:%M").time()
-    
-    available_courts = utils.get_available_courts(date, start_time, use_type)
-    
-    courts = [{'id': court.id, 'name': court.name} for court in available_courts]
-    return jsonify({'courts': courts})
 
+    date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    start_time = datetime.strptime(start_time_str, '%H:%M').time()
+
+    available_courts = utils.get_available_courts(date, start_time, use_type)
+    court_data = [{'id': court.id, 'name': court.name} for court in available_courts]
+
+    return jsonify(court_data)
 
     
 
