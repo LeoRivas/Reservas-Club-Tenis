@@ -91,70 +91,63 @@
 </form>
 
 <script>
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     function updateAvailableCourts() {
-        var date = $('#date').val();
-        var startTime = $('#start_time').val();
-        var useType = $('#use_type').val();
+        var date = document.getElementById('date').value;
+        var startTime = document.getElementById('start_time').value;
+        var useType = document.getElementById('use_type').value;
 
         if (date && startTime && useType) {
-            $.getJSON('/get_available_courts', {
-                date: date,
-                start_time: startTime,
-                use_type: useType
-            }, function(data) {
-                var courtSelect = $('#court_id');
-                courtSelect.empty();
-                courtSelect.append($('<option></option>').attr('value', '').text('Selecciona una cancha'));
-                $.each(data, function(index, court) {
-                    courtSelect.append($('<option></option>').attr('value', court.id).text(court.name));
-                });
-                courtSelect.prop('disabled', false);
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.error("Error en la solicitud AJAX:", textStatus, errorThrown);
-            });
+            fetch('/get_available_courts?date=' + date + '&start_time=' + startTime + '&use_type=' + useType)
+                .then(response => response.json())
+                .then(data => {
+                    var courtSelect = document.getElementById('court_id');
+                    courtSelect.innerHTML = '';
+                    var defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Selecciona una cancha';
+                    courtSelect.appendChild(defaultOption);
+                    data.forEach(function(court) {
+                        var option = document.createElement('option');
+                        option.value = court.id;
+                        option.textContent = court.name;
+                        courtSelect.appendChild(option);
+                    });
+                    courtSelect.disabled = false;
+                })
+                .catch(error => console.error('Error:', error));
         }
     }
 
-    $('#date, #start_time, #use_type').change(updateAvailableCourts);
-
-    // Inicializar el select de canchas como deshabilitado
-    $('#court_id').prop('disabled', true);
-
-
     function updateFields() {
         var useType = document.getElementById('use_type').value;
-
         document.getElementById('game_type_div').style.display = (useType === 'liga' || useType === 'amistoso') ? 'block' : 'none';
         document.getElementById('league_category_div').style.display = useType === 'liga' ? 'block' : 'none';
         document.getElementById('elite_category_div').style.display = useType === 'entrenamiento' ? 'block' : 'none';
         document.getElementById('academy_category_div').style.display = useType === 'academia' ? 'block' : 'none';
-
         var showPlayers = (useType === 'amistoso' || useType === 'liga');
         var showTrainer = (useType === 'entrenamiento' || useType === 'academia');
-
         document.getElementById('players_div').style.display = showPlayers ? 'block' : 'none';
         document.getElementById('trainer_div').style.display = showTrainer ? 'block' : 'none';
-
         var gameType = document.getElementById('game_type').value;
         var isDoubles = gameType === 'dobles';
-
         document.getElementById('player3_div').style.display = isDoubles ? 'block' : 'none';
         document.getElementById('player3_is_member_div').style.display = isDoubles ? 'block' : 'none';
         document.getElementById('player4_div').style.display = isDoubles ? 'block' : 'none';
         document.getElementById('player4_is_member_div').style.display = isDoubles ? 'block' : 'none';
     }
 
-    document.getElementById('date').addEventListener('change', updateCourtOptions);
-    document.getElementById('start_time').addEventListener('change', updateCourtOptions);
+    document.getElementById('date').addEventListener('change', updateAvailableCourts);
+    document.getElementById('start_time').addEventListener('change', updateAvailableCourts);
     document.getElementById('use_type').addEventListener('change', function() {
-        updateCourtOptions();
+        updateAvailableCourts();
         updateFields();
     });
-
     document.getElementById('game_type').addEventListener('change', updateFields);
 
-    updateFields(); // Call this initially to set the correct fields on page load
+    // Inicializar el select de canchas como deshabilitado
+    document.getElementById('court_id').disabled = true;
+
+    updateFields(); // Llamar a esto inicialmente para configurar los campos correctos al cargar la página
 });
 </script>
-{% endblock %}
