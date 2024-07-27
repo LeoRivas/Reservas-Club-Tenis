@@ -86,11 +86,12 @@ def check_availability(date, start_time, end_time, selected_court_id):
 def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
+        end_time = (datetime.combine(form.date.data, form.start_time.data) + timedelta(minutes=90 if form.use_type.data in ['amistoso', 'liga'] else 60)).time()
+        
         reservation = Reservation(
-            user_id=current_user.id,
             date=form.date.data,
             start_time=form.start_time.data,
-            end_time=form.end_time.data,
+            end_time=end_time,
             court_id=form.court_id.data,
             use_type=form.use_type.data,
             game_type=form.game_type.data,
@@ -108,7 +109,8 @@ def reserve():
             trainer=form.trainer.data,
             is_paid=form.is_paid.data,
             payment_amount=form.payment_amount.data,
-            comments=form.comments.data
+            comments=form.comments.data,
+            user_id=current_user.id
         )
         db.session.add(reservation)
         db.session.commit()
@@ -119,6 +121,7 @@ def reserve():
         form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in utils.get_available_times(datetime.today().date(), None, None)]
         form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     return render_template('reservation.html', form=form)
+
 
 @app.route('/edit_reservation/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required
@@ -209,7 +212,8 @@ def edit_reservation_user(reservation_id):
     return render_template('edit_reservation_user.html', form=form, reservation=reservation)
 
 @app.route('/get_available_courts')
-def get_available_courts():
+@login_required
+def get_available_courts_route():
     date_str = request.args.get('date')
     start_time_str = request.args.get('start_time')
     use_type = request.args.get('use_type')
