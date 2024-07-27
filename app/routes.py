@@ -228,8 +228,6 @@ def get_available_courts():
 
     return jsonify(court_data)
 
-    
-
 @app.route('/calendar', methods=['GET', 'POST'])
 def calendar():
     date_str = request.args.get('date')

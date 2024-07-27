@@ -13,9 +13,7 @@
     </div>
     <div class="form-group">
         {{ form.court_id.label(class="form-label") }}
-        <select id="court_id" name="court_id" class="form-control">
-            <option value="">Selecciona una hora primero</option>
-        </select>
+        {{ form.court_id(class="form-control", id="court_id", disabled=true) }}
     </div>
     <div class="form-group">
         {{ form.use_type.label(class="form-label") }}
@@ -91,40 +89,30 @@
 </form>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    function updateCourtOptions() {
-        var date = document.getElementById('date').value;
-        var startTime = document.getElementById('start_time').value;
-        var useType = document.getElementById('use_type').value;
+$(document).ready(function() {
+    function updateAvailableCourts() {
+        var date = $('#date').val();
+        var startTime = $('#start_time').val();
+        var useType = $('#use_type').val();
 
-        console.log('Fecha:', date);
-        console.log('Hora de inicio:', startTime);
-        console.log('Tipo de uso:', useType);
-
-        if (date && startTime) {
-            fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}`)
-                .then(response => response.json())
-                .then(data => {
-                    var courtSelect = document.getElementById('court_id');
-                    courtSelect.innerHTML = '';
-                    if (data.courts.length > 0) {
-                        data.courts.forEach(function(court) {
-                            var option = document.createElement('option');
-                            option.value = court.id;
-                            option.text = court.name;
-                            courtSelect.add(option);
-                        });
-                    } else {
-                        var option = document.createElement('option');
-                        option.value = '';
-                        option.text = 'No hay canchas disponibles';
-                        courtSelect.add(option);
-                    }
-                    console.log('Canchas disponibles:', data.courts);
-                })
-                .catch(error => console.error('Error al obtener canchas disponibles:', error));
+        if (date && startTime && useType) {
+            $.getJSON('/get_available_courts', {
+                date: date,
+                start_time: startTime,
+                use_type: useType
+            }, function(data) {
+                var courtSelect = $('#court_id');
+                courtSelect.empty();
+                $.each(data, function(index, court) {
+                    courtSelect.append($('<option></option>').attr('value', court.id).text(court.name));
+                });
+                courtSelect.prop('disabled', false);
+            });
         }
     }
+
+    $('#date, #start_time, #use_type').change(updateAvailableCourts);
+});
 
     function updateFields() {
         var useType = document.getElementById('use_type').value;
