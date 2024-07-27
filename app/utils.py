@@ -41,6 +41,8 @@ def check_availability(date, start_time, end_time):
 
 
 def get_available_courts(date, start_time, use_type):
+    print(f"Buscando canchas disponibles para: date={date}, start_time={start_time}, use_type={use_type}")
+
     # Convertir la fecha y hora a objetos datetime
     date = datetime.strptime(date, '%Y-%m-%d').date()
     start_time = datetime.strptime(start_time, '%H:%M').time()
@@ -65,5 +67,8 @@ def get_available_courts(date, start_time, use_type):
 
     # Filtrar las canchas disponibles
     available_courts = [court for court in all_courts if court.id not in occupied_courts]
+    print(f"Canchas ocupadas: {occupied_courts}")
+    print(f"Canchas disponibles: {available_courts}")
+
 
     return available_courts

@@ -223,7 +223,12 @@ def get_available_courts():
     start_time_str = request.args.get('start_time')
     use_type = request.args.get('use_type')
 
+    print(f"Recibidos: date={date_str}, start_time={start_time_str}, use_type={use_type}")
+
     available_courts = utils.get_available_courts(date_str, start_time_str, use_type)
+    
+    print(f"Canchas disponibles: {available_courts}")
+    
     court_data = [{'id': court.id, 'name': court.name} for court in available_courts]
 
     return jsonify(court_data)

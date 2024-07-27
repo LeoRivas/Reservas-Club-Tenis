@@ -91,6 +91,7 @@
 </form>
 
 <script>
+<script>
 $(document).ready(function() {
     function updateAvailableCourts() {
         var date = $('#date').val();
@@ -105,17 +106,23 @@ $(document).ready(function() {
             }, function(data) {
                 var courtSelect = $('#court_id');
                 courtSelect.empty();
+                courtSelect.append($('<option></option>').attr('value', '').text('Selecciona una cancha'));
                 $.each(data, function(index, court) {
                     courtSelect.append($('<option></option>').attr('value', court.id).text(court.name));
                 });
                 courtSelect.prop('disabled', false);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("Error en la solicitud AJAX:", textStatus, errorThrown);
             });
         }
     }
 
     $('#date, #start_time, #use_type').change(updateAvailableCourts);
-});
 
+    // Inicializar el select de canchas como deshabilitado
+    $('#court_id').prop('disabled', true);
+});
+</script>
     function updateFields() {
         var useType = document.getElementById('use_type').value;
 
