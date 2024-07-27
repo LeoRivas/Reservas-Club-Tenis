@@ -223,10 +223,7 @@ def get_available_courts():
     start_time_str = request.args.get('start_time')
     use_type = request.args.get('use_type')
 
-    date = datetime.strptime(date_str, '%Y-%m-%d').date()
-    start_time = datetime.strptime(start_time_str, '%H:%M').time()
-
-    available_courts = utils.get_available_courts(date, start_time, use_type)
+    available_courts = utils.get_available_courts(date_str, start_time_str, use_type)
     court_data = [{'id': court.id, 'name': court.name} for court in available_courts]
 
     return jsonify(court_data)
