@@ -102,26 +102,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const useType = useTypeInput.value;
         document.getElementById('game_type_div').style.display = (useType === 'liga' || useType === 'amistoso') ? 'block' : 'none';
         document.getElementById('league_category_div').style.display = useType === 'liga' ? 'block' : 'none';
-        document.getElementById('elite_category_div').style.display = useType === 'entrenamiento' ? 'block' : 'none';
+        document.getElementById('elite_category_div').style.display = useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal' ? 'block' : 'none';
         document.getElementById('academy_category_div').style.display = useType === 'academia' ? 'block' : 'none';
 
-        const showPlayers = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento');
-        const showTrainer = (useType === 'entrenamiento' || useType === 'academia');
+        const showPlayers = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento_grupal' || useType === 'entrenamiento_individual');
+        const showTrainer = (useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal' || useType === 'academia');
         document.getElementById('players_div').style.display = showPlayers ? 'block' : 'none';
         document.getElementById('trainer_div').style.display = showTrainer ? 'block' : 'none';
 
         if (showPlayers) {
             const gameType = gameTypeSelect.value;
             const isDoubles = gameType === 'dobles';
-            document.getElementById('player3_div').style.display = isDoubles ? 'block' : 'none';
-            document.getElementById('player3_is_member_div').style.display = isDoubles ? 'block' : 'none';
-            document.getElementById('player4_div').style.display = isDoubles ? 'block' : 'none';
-            document.getElementById('player4_is_member_div').style.display = isDoubles ? 'block' : 'none';
+            document.getElementById('player3_div').style.display = isDoubles || useType === 'entrenamiento_grupal' ? 'block' : 'none';
+            document.getElementById('player3_is_member_div').style.display = isDoubles || useType === 'entrenamiento_grupal' ? 'block' : 'none';
+            document.getElementById('player4_div').style.display = isDoubles || useType === 'entrenamiento_grupal' ? 'block' : 'none';
+            document.getElementById('player4_is_member_div').style.display = isDoubles || useType === 'entrenamiento_grupal' ? 'block' : 'none';
         }
 
         // Habilitar la selección de cancha solo si todos los campos necesarios están completos
         const canSelectCourt = dateInput.value && startTimeInput.value && useTypeInput.value && 
-            (!showPlayers || gameTypeSelect.value);
+            (!showPlayers || gameTypeSelect.value || useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal');
         courtSelect.disabled = !canSelectCourt;
 
         if (canSelectCourt) {
