@@ -25,59 +25,59 @@
     <!-- Campos Opcionales (Amistoso, Liga, etc.) -->
     <div class="form-group" id="game_type_div" style="display: none;">
         {{ form.game_type.label(class="form-label") }}
-        {{ form.game_type(class="form-control") }}
+        {{ form.game_type(class="form-control", id="game_type") }}
     </div>
     <div class="form-group" id="league_category_div" style="display: none;">
         {{ form.league_category.label(class="form-label") }}
-        {{ form.league_category(class="form-control") }}
+        {{ form.league_category(class="form-control", id="league_category") }}
     </div>
     <div class="form-group" id="elite_category_div" style="display: none;">
         {{ form.elite_category.label(class="form-label") }}
-        {{ form.elite_category(class="form-control") }}
+        {{ form.elite_category(class="form-control", id="elite_category") }}
     </div>
     <div class="form-group" id="academy_category_div" style="display: none;">
         {{ form.academy_category.label(class="form-label") }}
-        {{ form.academy_category(class="form-control") }}
+        {{ form.academy_category(class="form-control", id="academy_category") }}
     </div>
     
     <!-- Campos para Jugadores y Entrenadores -->
     <div id="players_div" style="display: none;">
         <div class="form-group">
             {{ form.player1.label(class="form-label") }}
-            {{ form.player1(class="form-control", value=current_user.username) }}
+            {{ form.player1(class="form-control", id="player1", value=current_user.username) }}
         </div>
         <div class="form-group">
             {{ form.player1_is_member.label(class="form-check-label") }}
-            {{ form.player1_is_member(class="form-check-input") }}
+            {{ form.player1_is_member(class="form-check-input", id="player1_is_member") }}
         </div>
         <div class="form-group">
             {{ form.player2.label(class="form-label") }}
-            {{ form.player2(class="form-control") }}
+            {{ form.player2(class="form-control", id="player2") }}
         </div>
         <div class="form-group">
             {{ form.player2_is_member.label(class="form-check-label") }}
-            {{ form.player2_is_member(class="form-check-input") }}
+            {{ form.player2_is_member(class="form-check-input", id="player2_is_member") }}
         </div>
         <div class="form-group" id="player3_div" style="display: none;">
             {{ form.player3.label(class="form-label") }}
-            {{ form.player3(class="form-control") }}
+            {{ form.player3(class="form-control", id="player3") }}
         </div>
         <div class="form-group" id="player3_is_member_div" style="display: none;">
             {{ form.player3_is_member.label(class="form-check-label") }}
-            {{ form.player3_is_member(class="form-check-input") }}
+            {{ form.player3_is_member(class="form-check-input", id="player3_is_member") }}
         </div>
         <div class="form-group" id="player4_div" style="display: none;">
             {{ form.player4.label(class="form-label") }}
-            {{ form.player4(class="form-control") }}
+            {{ form.player4(class="form-control", id="player4") }}
         </div>
         <div class="form-group" id="player4_is_member_div" style="display: none;">
             {{ form.player4_is_member.label(class="form-check-label") }}
-            {{ form.player4_is_member(class="form-check-input") }}
+            {{ form.player4_is_member(class="form-check-input", id="player4_is_member") }}
         </div>
     </div>
     <div class="form-group" id="trainer_div" style="display: none;">
         {{ form.trainer.label(class="form-label") }}
-        {{ form.trainer(class="form-control") }}
+        {{ form.trainer(class="form-control", id="trainer") }}
     </div>
     
     <!-- Campo de Selección de Cancha -->
@@ -91,15 +91,15 @@
     <!-- Campos de Pago y Comentarios -->
     <div class="form-group">
         {{ form.is_paid.label(class="form-check-label") }}
-        {{ form.is_paid(class="form-check-input") }}
+        {{ form.is_paid(class="form-check-input", id="is_paid") }}
     </div>
     <div class="form-group">
         {{ form.payment_amount.label(class="form-label") }}
-        {{ form.payment_amount(class="form-control") }}
+        {{ form.payment_amount(class="form-control", id="payment_amount") }}
     </div>
     <div class="form-group">
         {{ form.comments.label(class="form-label") }}
-        {{ form.comments(class="form-control") }}
+        {{ form.comments(class="form-control", id="comments") }}
     </div>
     
     <!-- Botón de Envío -->
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateFields() {
         const useType = useTypeInput.value;
         
-        // Ocultar todos los campos opcionales inicialmente....
+        // Ocultar todos los campos opcionales inicialmente
         gameTypeSelect.parentElement.style.display = 'none';
         leagueCategoryDiv.style.display = 'none';
         eliteCategoryDiv.style.display = 'none';
