@@ -97,19 +97,32 @@ document.addEventListener('DOMContentLoaded', function() {
         var startTime = document.getElementById('start_time').value;
         var useType = document.getElementById('use_type').value;
 
+        console.log('Fecha:', date);
+        console.log('Hora de inicio:', startTime);
+        console.log('Tipo de uso:', useType);
+
         if (date && startTime) {
             fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}`)
                 .then(response => response.json())
                 .then(data => {
                     var courtSelect = document.getElementById('court_id');
                     courtSelect.innerHTML = '';
-                    data.courts.forEach(function(court) {
+                    if (data.courts.length > 0) {
+                        data.courts.forEach(function(court) {
+                            var option = document.createElement('option');
+                            option.value = court.id;
+                            option.text = court.name;
+                            courtSelect.add(option);
+                        });
+                    } else {
                         var option = document.createElement('option');
-                        option.value = court.id;
-                        option.text = court.name;
+                        option.value = '';
+                        option.text = 'No hay canchas disponibles';
                         courtSelect.add(option);
-                    });
-                });
+                    }
+                    console.log('Canchas disponibles:', data.courts);
+                })
+                .catch(error => console.error('Error al obtener canchas disponibles:', error));
         }
     }
 
