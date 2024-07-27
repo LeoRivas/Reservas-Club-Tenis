@@ -97,35 +97,81 @@ document.addEventListener('DOMContentLoaded', function() {
     const useTypeInput = document.getElementById('use_type');
     const courtSelect = document.getElementById('court_id');
     const gameTypeSelect = document.getElementById('game_type');
+    const leagueCategoryDiv = document.getElementById('league_category_div');
+    const eliteCategoryDiv = document.getElementById('elite_category_div');
+    const academyCategoryDiv = document.getElementById('academy_category_div');
+    const playersDiv = document.getElementById('players_div');
+    const trainerDiv = document.getElementById('trainer_div');
 
     function updateFields() {
         const useType = useTypeInput.value;
-        document.getElementById('game_type_div').style.display = (useType === 'liga' || useType === 'amistoso') ? 'block' : 'none';
-        document.getElementById('league_category_div').style.display = useType === 'liga' ? 'block' : 'none';
-        document.getElementById('elite_category_div').style.display = useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal' ? 'block' : 'none';
-        document.getElementById('academy_category_div').style.display = useType === 'academia' ? 'block' : 'none';
-
-        const showPlayers = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento_grupal' || useType === 'entrenamiento_individual');
-        const showTrainer = (useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal' || useType === 'academia');
-        document.getElementById('players_div').style.display = showPlayers ? 'block' : 'none';
-        document.getElementById('trainer_div').style.display = showTrainer ? 'block' : 'none';
-
-        if (showPlayers) {
-            const gameType = gameTypeSelect.value;
-            const isDoubles = gameType === 'dobles';
-            document.getElementById('player3_div').style.display = isDoubles || useType === 'entrenamiento_grupal' ? 'block' : 'none';
-            document.getElementById('player3_is_member_div').style.display = isDoubles || useType === 'entrenamiento_grupal' ? 'block' : 'none';
-            document.getElementById('player4_div').style.display = isDoubles || useType === 'entrenamiento_grupal' ? 'block' : 'none';
-            document.getElementById('player4_is_member_div').style.display = isDoubles || useType === 'entrenamiento_grupal' ? 'block' : 'none';
+        
+        // Ocultar todos los campos opcionales inicialmente
+        gameTypeSelect.parentElement.style.display = 'none';
+        leagueCategoryDiv.style.display = 'none';
+        eliteCategoryDiv.style.display = 'none';
+        academyCategoryDiv.style.display = 'none';
+        playersDiv.style.display = 'none';
+        trainerDiv.style.display = 'none';
+        
+        // Mostrar campos relevantes según el tipo de uso
+        if (useType === 'amistoso' || useType === 'liga') {
+            gameTypeSelect.parentElement.style.display = 'block';
+            if (useType === 'liga') {
+                leagueCategoryDiv.style.display = 'block';
+            }
+            showPlayers(4);
+        } else if (useType === 'entrenamiento_individual') {
+            showPlayers(1);
+            trainerDiv.style.display = 'block';
+        } else if (useType === 'entrenamiento_grupal') {
+            showPlayers(4);
+            trainerDiv.style.display = 'block';
+        } else if (useType === 'elite') {
+            eliteCategoryDiv.style.display = 'block';
+            trainerDiv.style.display = 'block';
+        } else if (useType === 'academia_interna') {
+            academyCategoryDiv.style.display = 'block';
+            trainerDiv.style.display = 'block';
         }
 
-        // Habilitar la selección de cancha solo si todos los campos necesarios están completos
-        const canSelectCourt = dateInput.value && startTimeInput.value && useTypeInput.value && 
-            (!showPlayers || gameTypeSelect.value || useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal');
-        courtSelect.disabled = !canSelectCourt;
+        // Verificar si todos los campos necesarios están completos
+        checkFieldsAndUpdateCourts();
+    }
 
-        if (canSelectCourt) {
+    function showPlayers(count) {
+        playersDiv.style.display = 'block';
+        for (let i = 1; i <= 4; i++) {
+            const playerDiv = document.getElementById(`player${i}_div`);
+            const playerIsMemberDiv = document.getElementById(`player${i}_is_member_div`);
+            if (playerDiv && playerIsMemberDiv) {
+                playerDiv.style.display = i <= count ? 'block' : 'none';
+                playerIsMemberDiv.style.display = i <= count ? 'block' : 'none';
+            }
+        }
+    }
+
+    function checkFieldsAndUpdateCourts() {
+        const useType = useTypeInput.value;
+        let allFieldsFilled = dateInput.value && startTimeInput.value && useType;
+
+        // Verificar campos adicionales según el tipo de uso
+        if (useType === 'amistoso' || useType === 'liga') {
+            allFieldsFilled = allFieldsFilled && gameTypeSelect.value;
+            if (useType === 'liga') {
+                allFieldsFilled = allFieldsFilled && document.getElementById('league_category').value;
+            }
+        } else if (useType === 'elite') {
+            allFieldsFilled = allFieldsFilled && document.getElementById('elite_category').value;
+        } else if (useType === 'academia_interna') {
+            allFieldsFilled = allFieldsFilled && document.getElementById('academy_category').value;
+        }
+
+        if (allFieldsFilled) {
             updateAvailableCourts();
+        } else {
+            courtSelect.innerHTML = '<option value="">Completa los campos anteriores</option>';
+            courtSelect.disabled = true;
         }
     }
 
@@ -149,10 +195,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error:', error));
     }
 
+    // Event listeners
     dateInput.addEventListener('change', updateFields);
     startTimeInput.addEventListener('change', updateFields);
     useTypeInput.addEventListener('change', updateFields);
-    gameTypeSelect.addEventListener('change', updateFields);
+    gameTypeSelect.addEventListener('change', checkFieldsAndUpdateCourts);
+    document.getElementById('league_category').addEventListener('change', checkFieldsAndUpdateCourts);
+    document.getElementById('elite_category').addEventListener('change', checkFieldsAndUpdateCourts);
+    document.getElementById('academy_category').addEventListener('change', checkFieldsAndUpdateCourts);
 
     // Inicializar campos
     updateFields();
