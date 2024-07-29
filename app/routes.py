@@ -10,6 +10,7 @@ import csv
 from io import StringIO
 from app.utils import get_available_times
 from app import utils
+import time
 
 
 
