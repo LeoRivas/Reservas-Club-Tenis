@@ -31,9 +31,11 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 
+
+
 class ReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])
-    start_time = SelectField('Hora de Inicio', choices=[])
+    start_time = SelectField('Hora de Inicio', choices=[], validators=[DataRequired()])
     court_id = SelectField('Cancha', choices=[], coerce=int, validators=[DataRequired()])
     use_type = SelectField('Tipo de uso', choices=[
         ('amistoso', 'Amistoso'),
@@ -45,7 +47,7 @@ class ReservationForm(FlaskForm):
     ], validators=[DataRequired()])
     game_type = SelectField('Tipo de juego', choices=[
         ('singles', 'Singles'),
-        ('doubles', 'Dobles')
+        ('dobles', 'Dobles')
     ], validators=[Optional()])
     league_category = SelectField('Categoría de liga', choices=[
         ('primera', 'Primera'),
@@ -80,15 +82,6 @@ class ReservationForm(FlaskForm):
     comments = TextAreaField('Comentarios')
     submit = SubmitField('Reservar')
 
-    def __init__(self, *args, **kwargs):
-        super(ReservationForm, self).__init__(*args, **kwargs)
-        date = self.date.data or datetime.today().date()
-        court_id = self.court_id.data
-        use_type = self.use_type.data
-        if date and court_id and use_type:
-            self.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(date, court_id, use_type)]
-        else:
-            self.start_time.choices = []
 
 class EditReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])

@@ -85,70 +85,41 @@ def check_availability(date, start_time, end_time, selected_court_id):
 @login_required
 def reserve():
     form = ReservationForm()
-    app.logger.info(f"Método de solicitud: {request.method}")
-    
     if form.validate_on_submit():
-        app.logger.info("Formulario validado correctamente")
-        try:
-            date = form.date.data
-            start_time = datetime.strptime(form.start_time.data, "%H:%M").time()
-            use_type = form.use_type.data
-            court_id = form.court_id.data
-            
-            duration = 90 if use_type in ['amistoso', 'liga'] else 60
-            end_time = (datetime.combine(date, start_time) + timedelta(minutes=duration)).time()
-            
-            court = Court.query.get(court_id)
-            if not court:
-                raise ValueError(f"No se encontró la cancha con ID {court_id}")
-            
-            reservation = Reservation(
-                user_id=current_user.id,
-                court_id=court.id,
-                date=date,
-                start_time=start_time,
-                end_time=end_time,
-                use_type=use_type,
-                game_type=form.game_type.data,
-                league_category=form.league_category.data,
-                elite_category=form.elite_category.data,
-                academy_category=form.academy_category.data,
-                player1=form.player1.data,
-                player1_is_member=form.player1_is_member.data,
-                player2=form.player2.data,
-                player2_is_member=form.player2_is_member.data,
-                player3=form.player3.data,
-                player3_is_member=form.player3_is_member.data,
-                player4=form.player4.data,
-                player4_is_member=form.player4_is_member.data,
-                trainer=form.trainer.data,
-                is_paid=form.is_paid.data,
-                payment_amount=form.payment_amount.data,
-                comments=form.comments.data
-            )
-            
-            db.session.add(reservation)
-            db.session.commit()
-            
-            app.logger.info(f"Reserva creada exitosamente: ID {reservation.id}")
-            flash(f'Hola {current_user.username}, ya hemos hecho tu reserva en la cancha {court.name} con Hora de Inicio {start_time} y Hora de Término {end_time}. Recuerda llegar 10 minutos antes para que puedas comenzar a la hora, ¡te esperamos!', 'success')
-            return redirect(url_for('index'))
-        
-        except Exception as e:
-            db.session.rollback()
-            app.logger.error(f"Error al crear la reserva: {str(e)}")
-            flash('Hubo un error al crear la reserva. Por favor, inténtalo de nuevo.', 'error')
+        reservation = Reservation(
+            user_id=current_user.id,
+            date=form.date.data,
+            start_time=form.start_time.data,
+            end_time=(datetime.combine(form.date.data, form.start_time.data) + timedelta(minutes=90)).time(),
+            court_id=form.court_id.data,
+            use_type=form.use_type.data,
+            game_type=form.game_type.data,
+            league_category=form.league_category.data,
+            elite_category=form.elite_category.data,
+            academy_category=form.academy_category.data,
+            player1=form.player1.data,
+            player1_is_member=form.player1_is_member.data,
+            player2=form.player2.data,
+            player2_is_member=form.player2_is_member.data,
+            player3=form.player3.data,
+            player3_is_member=form.player3_is_member.data,
+            player4=form.player4.data,
+            player4_is_member=form.player4_is_member.data,
+            trainer=form.trainer.data,
+            is_paid=form.is_paid.data,
+            payment_amount=form.payment_amount.data,
+            comments=form.comments.data
+        )
+        db.session.add(reservation)
+        db.session.commit()
+        flash(f'Hola {current_user.username}, ya hemos hecho tu reserva en la cancha {reservation.court.name} con Hora de Inicio {reservation.start_time} y Hora de Término {reservation.end_time}. Recuerda llegar 10 minutos antes para que puedas comenzar a la hora, ¡te esperamos!', 'success')
+        return redirect(url_for('index'))
     else:
-        app.logger.info("Formulario no validado")
-        app.logger.info(f"Errores del formulario: {form.errors}")
-    
-    # Para solicitudes GET o si el formulario no es válido
-    form.date.data = form.date.data or datetime.today().date()
-    form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) 
-                               for time in get_available_times(form.date.data)]
-    form.court_id.choices = []  # Inicialmente vacío, se llenará con JavaScript
-    
+        form.date.data = datetime.today().date()
+        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in utils.get_available_times(datetime.today().date(), None, None)]
+        form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     return render_template('reservation.html', form=form)
+
 
 @app.route('/get_available_courts', methods=['GET'])
 def get_available_courts_route():
