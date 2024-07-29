@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch(`/get_available_courts?date=${date}&start_time=${time}&use_type=${useType}`)
                 .then(response => response.json())
                 .then(courts => {
+                    console.log('Canchas recibidas:', courts);  // Agregar esta línea para depuración
                     courtField.innerHTML = '';
                     courts.forEach(court => {
                         var option = document.createElement('option');
@@ -124,6 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.textContent = court.name;
                         courtField.appendChild(option);
                     });
+                })
+                .catch(error => {
+                    console.error('Error al obtener las canchas:', error);
                 });
         }
     }
@@ -164,4 +168,3 @@ document.addEventListener('DOMContentLoaded', function() {
     updateFormFields();
 });
 </script>
-{% endblock %}
