@@ -117,6 +117,7 @@ def get_available_courts_route():
         app.logger.error(f"Error en get_available_courts: {str(e)}")
         return jsonify({"error": "Hubo un error al obtener las canchas disponibles"}), 400
 
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     app.logger.error(f"Error no manejado: {str(e)}")

@@ -4,9 +4,9 @@ from app.models import Reservation, Court
 def get_available_courts(date, start_time, use_type):
     print(f"Buscando canchas disponibles para: date={date}, start_time={start_time}, use_type={use_type}")
 
-    # Convertir la fecha y hora a objetos datetime
-    date = datetime.strptime(date, '%Y-%m-%d').date()
-    start_time = datetime.strptime(start_time, '%H:%M').time()
+    # Convertir start_time a objeto time si es necesario
+    if isinstance(start_time, str):
+        start_time = datetime.strptime(start_time, '%H:%M').time()
 
     # Calcular la hora de término basada en el tipo de uso
     if use_type in ['amistoso', 'liga']:
@@ -32,7 +32,6 @@ def get_available_courts(date, start_time, use_type):
     print(f"Canchas disponibles: {available_courts}")
 
     return available_courts
-
 
 def get_available_times(date, court_id, use_type):
     weekday_hours = [(8, 30), (23, 0)]
