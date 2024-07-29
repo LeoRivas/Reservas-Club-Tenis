@@ -40,11 +40,11 @@
             {{ form.player1_is_member.label(class="form-check-label") }}
             {{ form.player1_is_member(class="form-check-input") }}
         </div>
-        <div class="form-group">
+        <div class="form-group" id="player2_div">
             {{ form.player2.label(class="form-label") }}
             {{ form.player2(class="form-control") }}
         </div>
-        <div class="form-group">
+        <div class="form-group" id="player2_is_member_div">
             {{ form.player2_is_member.label(class="form-check-label") }}
             {{ form.player2_is_member(class="form-check-input") }}
         </div>
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('league_category_div').style.display = useType === 'liga' ? 'block' : 'none';
         document.getElementById('elite_category_div').style.display = useType === 'elite' ? 'block' : 'none';
         document.getElementById('academy_category_div').style.display = useType === 'academia_interna' ? 'block' : 'none';
-        
+
         const showPlayers = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal');
         const showTrainer = (useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal' || useType === 'academia_interna');
         document.getElementById('players_div').style.display = showPlayers ? 'block' : 'none';
@@ -114,17 +114,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const isGroupTraining = useType === 'entrenamiento_grupal';
         const isIndividualTraining = useType === 'entrenamiento_individual';
-        
+
+        document.getElementById('player2_div').style.display = !isIndividualTraining ? 'block' : 'none';
+        document.getElementById('player2_is_member_div').style.display = !isIndividualTraining ? 'block' : 'none';
         document.getElementById('player3_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
         document.getElementById('player3_is_member_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
         document.getElementById('player4_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
         document.getElementById('player4_is_member_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
-        document.getElementById('player2_div').style.display = !isIndividualTraining ? 'block' : 'none';
-        document.getElementById('player2_is_member_div').style.display = !isIndividualTraining ? 'block' : 'none';
 
         // Habilitar la selección de cancha solo si todos los campos necesarios están completos
-        const canSelectCourt = dateInput.value && startTimeInput.value && useTypeInput.value && 
-            (!showPlayers || gameTypeSelect.value);
+        const canSelectCourt = dateInput.value && startTimeInput.value && useTypeInput.value && (!showPlayers || gameTypeSelect.value);
         courtSelect.disabled = !canSelectCourt;
 
         if (canSelectCourt) {
@@ -161,5 +160,4 @@ document.addEventListener('DOMContentLoaded', function() {
     updateFields();
 });
 </script>
-
 {% endblock %}
