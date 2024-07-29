@@ -59,7 +59,8 @@ def register():
 def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
-        print(form.errors)  # Agregar para ver errores de validación
+        print("Validación del formulario exitosa")
+        print("Datos del formulario:", form.data)  # Imprime todos los datos del formulario
         try:
             reservation = Reservation(
                 user_id=current_user.id,
@@ -91,14 +92,14 @@ def reserve():
             return redirect(url_for('index'))
         except Exception as e:
             db.session.rollback()
-            print(f"Error: {e}")  # Agregar para ver errores
+            print(f"Error al guardar la reserva: {e}")  # Imprimir el error detallado
             flash('Ha ocurrido un error al hacer la reserva. Por favor, intenta nuevamente.', 'danger')
     else:
+        print("Errores de validación del formulario:", form.errors)  # Imprimir los errores de validación
         form.date.data = datetime.today().date()
         form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(datetime.today().date(), None, None)]
         form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     return render_template('reservation.html', form=form)
-
 
 
 
