@@ -54,40 +54,23 @@ def register():
         flash('¡Felicidades, ya estás registrado!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
-
-
-def check_availability(date, start_time, end_time, selected_court_id):
-    selected_court_reservations = Reservation.query.filter_by(date=date, court_id=selected_court_id).all()
-    is_selected_court_available = all(
-        end_time <= r.start_time or start_time >= r.end_time
-        for r in selected_court_reservations
-    )
-
-    available_courts = []
-    if not is_selected_court_available:
-        for court in Court.query.all():
-            if court.id != selected_court_id:
-                reservations = Reservation.query.filter_by(date=date, court_id=court.id).all()
-                is_available = all(
-                    end_time <= r.start_time or start_time >= r.end_time
-                    for r in reservations
-                )
-                if is_available:
-                    available_courts.append(court)
     
-    return is_selected_court_available, available_courts
-
-
 @app.route('/reserve', methods=['GET', 'POST'])
 @login_required
 def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
+        # Verificar si la cancha sigue disponible antes de crear la reserva
+        available_courts = get_available_courts(form.date.data.strftime('%Y-%m-%d'), form.start_time.data, form.use_type.data)
+        if form.court_id.data not in [court.id for court in available_courts]:
+            flash('Lo sentimos, esta cancha ya no está disponible para el horario seleccionado. Por favor, elige otra cancha o horario.', 'error')
+            return redirect(url_for('reserve'))
+
         reservation = Reservation(
             user_id=current_user.id,
             date=form.date.data,
-            start_time=form.start_time.data,
-            end_time=(datetime.combine(form.date.data, form.start_time.data) + timedelta(minutes=90)).time(),
+            start_time=datetime.strptime(form.start_time.data, "%H:%M").time(),
+            end_time=(datetime.combine(form.date.data, datetime.strptime(form.start_time.data, "%H:%M").time()) + timedelta(minutes=90)).time(),
             court_id=form.court_id.data,
             use_type=form.use_type.data,
             game_type=form.game_type.data,
@@ -114,9 +97,9 @@ def reserve():
     else:
         form.date.data = datetime.today().date()
         form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(datetime.today().date(), None, None)]
+        # Inicialmente, muestra todas las canchas
         form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     return render_template('reservation.html', form=form)
-
 
 @app.route('/get_available_courts', methods=['GET'])
 def get_available_courts_route():
