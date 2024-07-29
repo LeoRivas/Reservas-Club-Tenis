@@ -59,39 +59,46 @@ def register():
 def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
-        reservation = Reservation(
-            user_id=current_user.id,
-            date=form.date.data,
-            start_time=datetime.strptime(form.start_time.data, "%H:%M").time(),
-            end_time=(datetime.combine(form.date.data, datetime.strptime(form.start_time.data, "%H:%M").time()) + timedelta(minutes=90)).time(),
-            court_id=form.court_id.data,
-            use_type=form.use_type.data,
-            game_type=form.game_type.data,
-            league_category=form.league_category.data,
-            elite_category=form.elite_category.data,
-            academy_category=form.academy_category.data,
-            player1=form.player1.data,
-            player1_is_member=form.player1_is_member.data,
-            player2=form.player2.data,
-            player2_is_member=form.player2_is_member.data,
-            player3=form.player3.data,
-            player3_is_member=form.player3_is_member.data,
-            player4=form.player4.data,
-            player4_is_member=form.player4_is_member.data,
-            trainer=form.trainer.data,
-            is_paid=form.is_paid.data,
-            payment_amount=form.payment_amount.data,
-            comments=form.comments.data
-        )
-        db.session.add(reservation)
-        db.session.commit()
-        flash(f'Hola {current_user.username}, ya hemos hecho tu reserva en la cancha {reservation.court.name} con Hora de Inicio {reservation.start_time} y Hora de Término {reservation.end_time}. Recuerda llegar 10 minutos antes para que puedas comenzar a la hora, ¡te esperamos!', 'success')
-        return redirect(url_for('index'))
+        print(form.errors)  # Agregar para ver errores de validación
+        try:
+            reservation = Reservation(
+                user_id=current_user.id,
+                date=form.date.data,
+                start_time=form.start_time.data,
+                end_time=(datetime.combine(form.date.data, form.start_time.data) + timedelta(minutes=90)).time(),
+                court_id=form.court_id.data,
+                use_type=form.use_type.data,
+                game_type=form.game_type.data,
+                league_category=form.league_category.data,
+                elite_category=form.elite_category.data,
+                academy_category=form.academy_category.data,
+                player1=form.player1.data,
+                player1_is_member=form.player1_is_member.data,
+                player2=form.player2.data,
+                player2_is_member=form.player2_is_member.data,
+                player3=form.player3.data,
+                player3_is_member=form.player3_is_member.data,
+                player4=form.player4.data,
+                player4_is_member=form.player4_is_member.data,
+                trainer=form.trainer.data,
+                is_paid=form.is_paid.data,
+                payment_amount=form.payment_amount.data,
+                comments=form.comments.data
+            )
+            db.session.add(reservation)
+            db.session.commit()
+            flash(f'Hola {current_user.username}, ya hemos hecho tu reserva en la cancha {reservation.court.name} con Hora de Inicio {reservation.start_time} y Hora de Término {reservation.end_time}. Recuerda llegar 10 minutos antes para que puedas comenzar a la hora, ¡te esperamos!', 'success')
+            return redirect(url_for('index'))
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error: {e}")  # Agregar para ver errores
+            flash('Ha ocurrido un error al hacer la reserva. Por favor, intenta nuevamente.', 'danger')
     else:
         form.date.data = datetime.today().date()
         form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(datetime.today().date(), None, None)]
         form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     return render_template('reservation.html', form=form)
+
 
 @app.route('/get_available_courts', methods=['GET'])
 def get_available_courts_route():

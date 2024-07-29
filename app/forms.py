@@ -138,6 +138,8 @@ class DateRangeForm(FlaskForm):
     submit = SubmitField('Buscar')
 
 class FormGeneral(FlaskForm):
+    start_date = DateField('Fecha de Inicio', validators=[DataRequired()])
+    end_date = DateField('Fecha de Término', validators=[DataRequired()])
     date = DateField('Fecha', validators=[DataRequired()])
     submit = SubmitField('Guardar')
 
