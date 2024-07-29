@@ -57,13 +57,13 @@ class ReservationForm(FlaskForm):
     ], validators=[Optional()])
     player1 = StringField('Jugador 1', validators=[Length(max=64)])
     player1_is_member = BooleanField('Jugador 1 es socio', default=False)
-    player2 = StringField('Jugador 2', validators=[Optional(), Length(max=64)])
-    player2_is_member = BooleanField('Jugador 2 es socio', validators=[Optional()])
-    player3 = StringField('Jugador 3', validators=[Optional(), Length(max=64)])
-    player3_is_member = BooleanField('Jugador 3 es socio', validators=[Optional()])
-    player4 = StringField('Jugador 4', validators=[Optional(), Length(max=64)])
-    player4_is_member = BooleanField('Jugador 4 es socio', validators=[Optional()])
-    trainer = StringField('Entrenador', validators=[Optional(), Length(max=64)])
+    player2 = StringField('Jugador 2', validators=[Optional()])
+    player2_is_member = BooleanField('¿Es socio?', validators=[Optional()])
+    player3 = StringField('Jugador 3', validators=[Optional()])
+    player3_is_member = BooleanField('¿Es socio?', validators=[Optional()])
+    player4 = StringField('Jugador 4', validators=[Optional()])
+    player4_is_member = BooleanField('¿Es socio?', validators=[Optional()])
+    trainer = StringField('Entrenador', validators=[Optional()])
     elite_category = SelectField('Categoría Elite', choices=[
         ('cancha_naranja', 'Cancha Naranja'),
         ('cancha_roja', 'Cancha Roja'),
