@@ -218,7 +218,10 @@ document.addEventListener('DOMContentLoaded', function() {
     dateInput.addEventListener('change', updateFields);
     startTimeInput.addEventListener('change', updateFields);
     useTypeInput.addEventListener('change', updateFields);
-    checkFieldsAndUpdateCourts();
+    gameTypeSelect.addEventListener('change', checkFieldsAndUpdateCourts);
+    leagueCategorySelect.addEventListener('change', checkFieldsAndUpdateCourts);
+    eliteCategorySelect.addEventListener('change', checkFieldsAndUpdateCourts);
+    academyCategorySelect.addEventListener('change', checkFieldsAndUpdateCourts);
 
     // Inicializar campos
     updateFields();
