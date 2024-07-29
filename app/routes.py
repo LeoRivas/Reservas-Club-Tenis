@@ -1,14 +1,19 @@
-import time
 from flask import render_template, redirect, url_for, flash, request, make_response, jsonify
 from app import app, db, utils
 from app.forms import LoginForm, RegistrationForm, ReservationForm, EditReservationForm, DateRangeForm, FormGeneral, FormIngresos, FormNoPagadas
 from app.models import User, Reservation, Court
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from sqlalchemy import func
 from io import StringIO
+import csv
+
+# Importar time
+import time
+
 from app.utils import get_available_times
+
 
 @app.route('/')
 @app.route('/index')
