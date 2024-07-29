@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateFormFields() {
         var useType = useTypeField.value;
 
+        console.log('Tipo de uso:', useType); // Línea de depuración
         gameTypeDiv.style.display = (useType === 'amistoso' || useType === 'liga') ? 'block' : 'none';
         leagueCategoryDiv.style.display = useType === 'liga' ? 'block' : 'none';
         eliteCategoryDiv.style.display = useType === 'elite' ? 'block' : 'none';
@@ -154,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (useType === 'amistoso' || useType === 'liga') {
             var gameType = gameTypeField.value;
+            console.log('Tipo de juego:', gameType); // Línea de depuración
             player2Div.style.display = 'block';
             player2IsMemberDiv.style.display = 'block';
             player3Div.style.display = gameType === 'dobles' ? 'block' : 'none';
@@ -161,8 +163,8 @@ document.addEventListener('DOMContentLoaded', function() {
             player4Div.style.display = gameType === 'dobles' ? 'block' : 'none';
             player4IsMemberDiv.style.display = gameType === 'dobles' ? 'block' : 'none';
         } else if (useType === 'entrenamiento_individual') {
-            player2Div.style.display = 'none';
-            player2IsMemberDiv.style.display = 'none';
+            player2Div.style.display = 'block';
+            player2IsMemberDiv.style.display = 'block';
             player3Div.style.display = 'none';
             player3IsMemberDiv.style.display = 'none';
             player4Div.style.display = 'none';
