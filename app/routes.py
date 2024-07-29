@@ -86,14 +86,20 @@ def check_availability(date, start_time, end_time, selected_court_id):
 def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
-        end_time = (datetime.combine(form.date.data, form.start_time.data) + timedelta(minutes=90 if form.use_type.data in ['amistoso', 'liga'] else 60)).time()
+        date = form.date.data
+        start_time = form.start_time.data
+        use_type = form.use_type.data
+        court_id = form.court_id.data
+        court = Court.query.get(court_id)
+        end_time = (datetime.combine(date, start_time) + timedelta(minutes=90)).time() if use_type in ['amistoso', 'liga'] else (datetime.combine(date, start_time) + timedelta(minutes=60)).time()
         
         reservation = Reservation(
-            date=form.date.data,
-            start_time=form.start_time.data,
+            user_id=current_user.id,
+            court_id=court.id,
+            date=date,
+            start_time=start_time,
             end_time=end_time,
-            court_id=form.court_id.data,
-            use_type=form.use_type.data,
+            use_type=use_type,
             game_type=form.game_type.data,
             league_category=form.league_category.data,
             elite_category=form.elite_category.data,
@@ -109,18 +115,37 @@ def reserve():
             trainer=form.trainer.data,
             is_paid=form.is_paid.data,
             payment_amount=form.payment_amount.data,
-            comments=form.comments.data,
-            user_id=current_user.id
+            comments=form.comments.data
         )
+        
         db.session.add(reservation)
         db.session.commit()
-        flash(f'Hola {current_user.username}, ya hemos hecho tu reserva en la cancha {reservation.court.name} con Hora de Inicio {reservation.start_time} y Hora de Término {reservation.end_time}. Recuerda llegar 10 minutos antes para que puedas comenzar a la hora, ¡te esperamos!', 'success')
+        
+        flash(f'Hola {current_user.username}, ya hemos hecho tu reserva en la cancha {court.name} con Hora de Inicio {start_time} y Hora de Término {end_time}. Recuerda llegar 10 minutos antes para que puedas comenzar a la hora, ¡te esperamos!', 'success')
         return redirect(url_for('index'))
+    
     else:
         form.date.data = datetime.today().date()
         form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in utils.get_available_times(datetime.today().date(), None, None)]
         form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+    
     return render_template('reservation.html', form=form)
+
+@app.route('/get_available_courts', methods=['GET'])
+def get_available_courts():
+    date_str = request.args.get('date')
+    start_time_str = request.args.get('start_time')
+    use_type = request.args.get('use_type')
+
+    print(f"Recibidos: date={date_str}, start_time={start_time_str}, use_type={use_type}")
+
+    available_courts = utils.get_available_courts(date_str, start_time_str, use_type)
+    
+    print(f"Canchas disponibles: {available_courts}")
+    
+    court_data = [{'id': court.id, 'name': court.name} for court in available_courts]
+
+    return jsonify(court_data)
 
 
 @app.route('/edit_reservation/<int:reservation_id>', methods=['GET', 'POST'])
@@ -211,22 +236,7 @@ def edit_reservation_user(reservation_id):
         form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(reservation.date, None, None)]
     return render_template('edit_reservation_user.html', form=form, reservation=reservation)
 
-@app.route('/get_available_courts')
-@login_required
-def get_available_courts_route():
-    date_str = request.args.get('date')
-    start_time_str = request.args.get('start_time')
-    use_type = request.args.get('use_type')
 
-    print(f"Recibidos: date={date_str}, start_time={start_time_str}, use_type={use_type}")
-
-    available_courts = utils.get_available_courts(date_str, start_time_str, use_type)
-    
-    print(f"Canchas disponibles: {available_courts}")
-    
-    court_data = [{'id': court.id, 'name': court.name} for court in available_courts]
-
-    return jsonify(court_data)
 
 @app.route('/calendar', methods=['GET', 'POST'])
 def calendar():

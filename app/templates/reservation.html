@@ -4,43 +4,41 @@
 <form method="POST" action="{{ url_for('reserve') }}">
     {{ form.hidden_tag() }}
     
-    <!-- Campo de Fecha -->
     <div class="form-group">
         {{ form.date.label(class="form-label") }}
         {{ form.date(class="form-control", id="date") }}
     </div>
     
-    <!-- Campo de Hora de Inicio -->
     <div class="form-group">
         {{ form.start_time.label(class="form-label") }}
         {{ form.start_time(class="form-control", id="start_time") }}
     </div>
     
-    <!-- Campo de Tipo de Uso -->
     <div class="form-group">
         {{ form.use_type.label(class="form-label") }}
         {{ form.use_type(class="form-control", id="use_type") }}
     </div>
     
-    <!-- Campos Opcionales (Amistoso, Liga, etc.) -->
     <div class="form-group" id="game_type_div" style="display: none;">
         {{ form.game_type.label(class="form-label") }}
         {{ form.game_type(class="form-control", id="game_type") }}
     </div>
+    
     <div class="form-group" id="league_category_div" style="display: none;">
         {{ form.league_category.label(class="form-label") }}
         {{ form.league_category(class="form-control", id="league_category") }}
     </div>
+    
     <div class="form-group" id="elite_category_div" style="display: none;">
         {{ form.elite_category.label(class="form-label") }}
         {{ form.elite_category(class="form-control", id="elite_category") }}
     </div>
+    
     <div class="form-group" id="academy_category_div" style="display: none;">
         {{ form.academy_category.label(class="form-label") }}
         {{ form.academy_category(class="form-control", id="academy_category") }}
     </div>
     
-    <!-- Campos para Jugadores y Entrenadores -->
     <div id="players_div" style="display: none;">
         <div class="form-group">
             {{ form.player1.label(class="form-label") }}
@@ -75,34 +73,34 @@
             {{ form.player4_is_member(class="form-check-input", id="player4_is_member") }}
         </div>
     </div>
+    
     <div class="form-group" id="trainer_div" style="display: none;">
         {{ form.trainer.label(class="form-label") }}
         {{ form.trainer(class="form-control", id="trainer") }}
     </div>
     
-    <!-- Campo de Selección de Cancha -->
     <div class="form-group">
         {{ form.court_id.label(class="form-label") }}
-        <select id="court_id" name="court_id" class="form-control" disabled>
+        <select id="court_id" name="court_id" class="form-control">
             <option value="">Selecciona una hora primero</option>
         </select>
     </div>
     
-    <!-- Campos de Pago y Comentarios -->
     <div class="form-group">
         {{ form.is_paid.label(class="form-check-label") }}
         {{ form.is_paid(class="form-check-input", id="is_paid") }}
     </div>
+    
     <div class="form-group">
         {{ form.payment_amount.label(class="form-label") }}
         {{ form.payment_amount(class="form-control", id="payment_amount") }}
     </div>
+    
     <div class="form-group">
         {{ form.comments.label(class="form-label") }}
         {{ form.comments(class="form-control", id="comments") }}
     </div>
     
-    <!-- Botón de Envío -->
     <button type="submit" class="btn btn-primary">Reservar</button>
 </form>
 
@@ -186,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (allFieldsFilled) {
             updateAvailableCourts();
         } else {
-            courtSelect.innerHTML = '<option value="">Completa los campos anteriores</option>';
+            courtSelect.innerHTML = '<option value="">Selecciona una hora primero</option>';
             courtSelect.disabled = true;
         }
     }
@@ -195,9 +193,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const date = dateInput.value;
         const startTime = startTimeInput.value;
         const useType = useTypeInput.value;
-        const courtId = courtSelect.value;
 
-        fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}&court_id=${courtId}`)
+        fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}`)
             .then(response => response.json())
             .then(data => {
                 const selectedCourt = courtSelect.value; // Guardar la selección actual
