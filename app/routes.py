@@ -130,21 +130,18 @@ def reserve():
         form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     
     return render_template('reservation.html', form=form)
-
 @app.route('/get_available_courts', methods=['GET'])
 def get_available_courts():
     date_str = request.args.get('date')
     start_time_str = request.args.get('start_time')
     use_type = request.args.get('use_type')
 
-    print(f"Recibidos: date={date_str}, start_time={start_time_str}, use_type={use_type}")
+    date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    start_time = datetime.strptime(start_time_str, '%H:%M').time()
 
-    available_courts = utils.get_available_courts(date_str, start_time_str, use_type)
-    
-    print(f"Canchas disponibles: {available_courts}")
+    available_courts = utils.get_available_courts(date, start_time, use_type)
     
     court_data = [{'id': court.id, 'name': court.name} for court in available_courts]
-
     return jsonify(court_data)
 
 @app.route('/edit_reservation/<int:reservation_id>', methods=['GET', 'POST'])
