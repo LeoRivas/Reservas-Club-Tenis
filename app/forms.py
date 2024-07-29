@@ -32,11 +32,9 @@ class RegistrationForm(FlaskForm):
 
 
 
-
 class ReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])
     start_time = SelectField('Hora de Inicio', choices=[], validators=[DataRequired()])
-    court_id = SelectField('Cancha', choices=[], coerce=int, validators=[DataRequired()])
     use_type = SelectField('Tipo de uso', choices=[
         ('amistoso', 'Amistoso'),
         ('liga', 'Liga'),
@@ -77,10 +75,13 @@ class ReservationForm(FlaskForm):
         ('intermedio', 'Intermedio'),
         ('avanzado', 'Avanzado')
     ], validators=[Optional()])
+    court_id = SelectField('Cancha', choices=[], coerce=int, validators=[DataRequired()])
     is_paid = BooleanField('Pagado')
     payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])
     comments = TextAreaField('Comentarios')
     submit = SubmitField('Reservar')
+
+
 
 
 class EditReservationForm(FlaskForm):

@@ -102,18 +102,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const useType = useTypeInput.value;
         const gameType = gameTypeSelect.value;
 
-        document.getElementById('game_type_div').style.display = (useType === 'liga' || useType === 'amistoso' || useType === 'entrenamiento') ? 'block' : 'none';
+        document.getElementById('game_type_div').style.display = (useType === 'liga' || useType === 'amistoso' || useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal') ? 'block' : 'none';
         document.getElementById('league_category_div').style.display = useType === 'liga' ? 'block' : 'none';
-        document.getElementById('elite_category_div').style.display = useType === 'entrenamiento' ? 'block' : 'none';
-        document.getElementById('academy_category_div').style.display = useType === 'academia' ? 'block' : 'none';
+        document.getElementById('elite_category_div').style.display = useType === 'elite' ? 'block' : 'none';
+        document.getElementById('academy_category_div').style.display = useType === 'academia_interna' ? 'block' : 'none';
         
-        const showPlayers = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento');
-        const showTrainer = (useType === 'entrenamiento' || useType === 'academia');
+        const showPlayers = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal');
+        const showTrainer = (useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal' || useType === 'academia_interna');
         document.getElementById('players_div').style.display = showPlayers ? 'block' : 'none';
         document.getElementById('trainer_div').style.display = showTrainer ? 'block' : 'none';
 
-        const isGroupTraining = useType === 'entrenamiento' && gameType === 'grupal';
-        const isIndividualTraining = useType === 'entrenamiento' && gameType === 'individual';
+        const isGroupTraining = useType === 'entrenamiento_grupal';
+        const isIndividualTraining = useType === 'entrenamiento_individual';
         
         document.getElementById('player3_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
         document.getElementById('player3_is_member_div').style.display = (gameType === 'dobles' || isGroupTraining) ? 'block' : 'none';
@@ -161,4 +161,5 @@ document.addEventListener('DOMContentLoaded', function() {
     updateFields();
 });
 </script>
+
 {% endblock %}
