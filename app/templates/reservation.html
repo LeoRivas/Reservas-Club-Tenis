@@ -3,17 +3,17 @@
     
     <div class="form-group">
         {{ form.date.label }}
-        {{ form.date(class="form-control", id="date") }}
+        {{ form.date(class="form-control") }}
     </div>
 
     <div class="form-group">
         {{ form.start_time.label }}
-        {{ form.start_time(class="form-control", id="start_time") }}
+        {{ form.start_time(class="form-control") }}
     </div>
 
     <div class="form-group">
         {{ form.use_type.label }}
-        {{ form.use_type(class="form-control", id="use_type") }}
+        {{ form.use_type(class="form-control") }}
     </div>
 
     <div id="player1-group" class="form-group">
@@ -30,9 +30,9 @@
 
     <div class="form-group">
         {{ form.court_id.label }}
-        {{ form.court_id(class="form-control", id="court_id") }}
+        {{ form.court_id(class="form-control") }}
     </div>
-    
+
     <div class="form-group">
         {{ form.is_paid.label }}
         {{ form.is_paid() }}
@@ -69,17 +69,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (date && startTime && useType) {
             fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}`)
                 .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Error:', data.error);
-                        courtSelect.innerHTML = '<option value="">Error al cargar canchas</option>';
-                    } else {
-                        courtSelect.innerHTML = '<option value="">Selecciona una cancha</option>';
-                        data.forEach(court => {
-                            const option = new Option(court.name, court.id);
-                            courtSelect.add(option);
-                        });
-                    }
+                .then(courts => {
+                    courtSelect.innerHTML = '<option value="">Selecciona una cancha</option>';
+                    courts.forEach(court => {
+                        const option = new Option(court.name, court.id);
+                        courtSelect.add(option);
+                    });
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -107,4 +102,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
