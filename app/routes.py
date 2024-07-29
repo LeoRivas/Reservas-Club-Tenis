@@ -4,11 +4,10 @@ from app.forms import LoginForm, RegistrationForm, ReservationForm, EditReservat
 from app.models import User, Reservation, Court
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from sqlalchemy import func
 from io import StringIO
 from app.utils import get_available_times, get_available_courts
-import time
 import csv
 
 # (Rest of the code remains the same)
@@ -54,18 +53,12 @@ def register():
         flash('¡Felicidades, ya estás registrado!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
-    
+
 @app.route('/reserve', methods=['GET', 'POST'])
 @login_required
 def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
-        # Verificar si la cancha sigue disponible antes de crear la reserva
-        available_courts = get_available_courts(form.date.data.strftime('%Y-%m-%d'), form.start_time.data, form.use_type.data)
-        if form.court_id.data not in [court.id for court in available_courts]:
-            flash('Lo sentimos, esta cancha ya no está disponible para el horario seleccionado. Por favor, elige otra cancha o horario.', 'error')
-            return redirect(url_for('reserve'))
-
         reservation = Reservation(
             user_id=current_user.id,
             date=form.date.data,
@@ -97,7 +90,6 @@ def reserve():
     else:
         form.date.data = datetime.today().date()
         form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(datetime.today().date(), None, None)]
-        # Inicialmente, muestra todas las canchas
         form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     return render_template('reservation.html', form=form)
 

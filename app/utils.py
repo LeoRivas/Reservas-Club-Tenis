@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from app.models import Reservation, Court
 
 def get_available_courts(date, start_time, use_type):
@@ -32,6 +32,7 @@ def get_available_courts(date, start_time, use_type):
     print(f"Canchas disponibles: {available_courts}")
 
     return available_courts
+
 
 def get_available_times(date, court_id, use_type):
     weekday_hours = [(8, 30), (23, 0)]
