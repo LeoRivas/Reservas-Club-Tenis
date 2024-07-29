@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from app.models import Reservation, Court
 
 def get_available_courts(date, start_time, use_type):
     print(f"Buscando canchas disponibles para: date={date}, start_time={start_time}, use_type={use_type}")

@@ -4,15 +4,14 @@ from app.forms import LoginForm, RegistrationForm, ReservationForm, EditReservat
 from app.models import User, Reservation, Court
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 from sqlalchemy import func
 from io import StringIO
+from app.utils import get_available_times, get_available_courts
+import time
 import csv
 
-# Importar time
-import time
-
-from app.utils import get_available_times
+# (Rest of the code remains the same)
 
 
 @app.route('/')
@@ -56,6 +55,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
+
 def check_availability(date, start_time, end_time, selected_court_id):
     selected_court_reservations = Reservation.query.filter_by(date=date, court_id=selected_court_id).all()
     is_selected_court_available = all(
@@ -76,6 +76,7 @@ def check_availability(date, start_time, end_time, selected_court_id):
                     available_courts.append(court)
     
     return is_selected_court_available, available_courts
+
 
 @app.route('/reserve', methods=['GET', 'POST'])
 @login_required
@@ -112,9 +113,10 @@ def reserve():
         return redirect(url_for('index'))
     else:
         form.date.data = datetime.today().date()
-        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in utils.get_available_times(datetime.today().date(), None, None)]
+        form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(datetime.today().date(), None, None)]
         form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
     return render_template('reservation.html', form=form)
+
 
 @app.route('/get_available_courts', methods=['GET'])
 def get_available_courts_route():
@@ -186,7 +188,7 @@ def edit_reservation(reservation_id):
         return redirect(url_for('admin_dashboard'))
     else:
         form.date.data = reservation.date
-        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(reservation.date, None, None)]
+        form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(reservation.date, None, None)]
     return render_template('edit_reservation.html', form=form, reservation=reservation)
 
 @app.route('/edit_reservation_user/<int:reservation_id>', methods=['GET', 'POST'])
@@ -230,8 +232,10 @@ def edit_reservation_user(reservation_id):
         return redirect(url_for('user_reservations'))
     else:
         form.date.data = reservation.date
-        form.start_time.choices = [(time.strftime("%H:%M"), time.strftime("%H:%M")) for time in get_available_times(reservation.date, None, None)]
+        form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(reservation.date, None, None)]
     return render_template('edit_reservation_user.html', form=form, reservation=reservation)
+
+
 
 @app.route('/calendar', methods=['GET', 'POST'])
 def calendar():
@@ -270,6 +274,7 @@ def calendar():
                            times=times, 
                            reservations=reservations, 
                            date=date.strftime('%Y-%m-%d'))
+
 
 @app.route('/admin_dashboard', methods=['GET', 'POST'])
 @login_required
@@ -331,6 +336,7 @@ def admin_dashboard():
         unpaid_reservations=unpaid_reservations
     )
 
+
 @app.route('/export_reservations', methods=['GET'])
 @login_required
 def export_reservations():
@@ -356,6 +362,7 @@ def export_reservations():
 def my_reservations():
     reservations = Reservation.query.filter_by(user_id=current_user.id).all()
     return render_template('user_reservations.html', reservations=reservations)
+
 
 @app.route('/delete_reservation/<int:reservation_id>', methods=['POST'])
 @login_required
