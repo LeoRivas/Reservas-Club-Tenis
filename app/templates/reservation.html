@@ -1,118 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-
-<h1>Reservar Cancha</h1>
-
-<form method="POST" action="{{ url_for('reserve') }}">
-    {{ form.hidden_tag() }}
-
-    <div class="form-group">
-        {{ form.date.label(class="form-label") }}
-        {{ form.date(class="form-control", id="date") }}
-    </div>
-
-    <div class="form-group">
-        {{ form.start_time.label(class="form-label") }}
-        {{ form.start_time(class="form-control", id="start_time") }}
-    </div>
-
-    <div class="form-group">
-        {{ form.use_type.label(class="form-label") }}
-        {{ form.use_type(class="form-control", id="use_type") }}
-    </div>
-
-    <div id="game_type_div" class="form-group" style="display: none;">
-        {{ form.game_type.label(class="form-label") }}
-        {{ form.game_type(class="form-control", id="game_type") }}
-    </div>
-
-    <div id="league_category_div" class="form-group" style="display: none;">
-        {{ form.league_category.label(class="form-label") }}
-        {{ form.league_category(class="form-control") }}
-    </div>
-
-    <div id="elite_category_div" class="form-group" style="display: none;">
-        {{ form.elite_category.label(class="form-label") }}
-        {{ form.elite_category(class="form-control") }}
-    </div>
-
-    <div id="academy_category_div" class="form-group" style="display: none;">
-        {{ form.academy_category.label(class="form-label") }}
-        {{ form.academy_category(class="form-control") }}
-    </div>
-
-    <div id="players_div" style="display: none;">
-        <div class="form-group">
-            {{ form.player1.label(class="form-label") }}
-            {{ form.player1(class="form-control", value=current_user.username) }}
-        </div>
-
-        <div class="form-group">
-            {{ form.player1_is_member.label(class="form-check-label") }}
-            {{ form.player1_is_member(class="form-check-input") }}
-        </div>
-
-        <div id="player2_div" class="form-group">
-            {{ form.player2.label(class="form-label") }}
-            {{ form.player2(class="form-control") }}
-        </div>
-
-        <div id="player2_is_member_div" class="form-group">
-            {{ form.player2_is_member.label(class="form-check-label") }}
-            {{ form.player2_is_member(class="form-check-input") }}
-        </div>
-
-        <div id="player3_div" class="form-group" style="display: none;">
-            {{ form.player3.label(class="form-label") }}
-            {{ form.player3(class="form-control") }}
-        </div>
-
-        <div id="player3_is_member_div" class="form-group" style="display: none;">
-            {{ form.player3_is_member.label(class="form-check-label") }}
-            {{ form.player3_is_member(class="form-check-input") }}
-        </div>
-
-        <div id="player4_div" class="form-group" style="display: none;">
-            {{ form.player4.label(class="form-label") }}
-            {{ form.player4(class="form-control") }}
-        </div>
-
-        <div id="player4_is_member_div" class="form-group" style="display: none;">
-            {{ form.player4_is_member.label(class="form-check-label") }}
-            {{ form.player4_is_member(class="form-check-input") }}
-        </div>
-    </div>
-
-    <div id="trainer_div" class="form-group" style="display: none;">
-        {{ form.trainer.label(class="form-label") }}
-        {{ form.trainer(class="form-control") }}
-    </div>
-
-    <div class="form-group">
-        {{ form.court_id.label(class="form-label") }}
-        {{ form.court_id(class="form-control") }}
-    </div>
-
-    <div class="form-group">
-        {{ form.is_paid.label(class="form-check-label") }}
-        {{ form.is_paid(class="form-check-input") }}
-    </div>
-
-    <div class="form-group">
-        {{ form.payment_amount.label(class="form-label") }}
-        {{ form.payment_amount(class="form-control") }}
-    </div>
-
-    <div class="form-group">
-        {{ form.comments.label(class="form-label") }}
-        {{ form.comments(class="form-control") }}
-    </div>
-
-    <button type="submit" class="btn btn-primary">Reservar</button>
-</form>
-
-{% extends "base.html" %}
-{% block content %}
 <h1>Reservar Cancha</h1>
 <form method="POST" action="{{ url_for('reserve') }}">
     {{ form.hidden_tag() }}
@@ -237,7 +124,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.textContent = court.name;
                         courtField.appendChild(option);
                     });
-                    courtField.disabled = false;
                 });
         }
     }
