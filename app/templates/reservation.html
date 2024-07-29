@@ -19,6 +19,11 @@
         {{ form.use_type(class="form-control", id="use_type") }}
     </div>
 
+    <div class="form-group">
+        {{ form.court_id.label(class="form-label") }}
+        {{ form.court_id(class="form-control", id="court_id") }}
+    </div>
+
     <div class="form-group" id="game_type_div" style="display: none;">
         {{ form.game_type.label(class="form-label") }}
         {{ form.game_type(class="form-control", id="game_type") }}
@@ -29,20 +34,10 @@
         {{ form.league_category(class="form-control", id="league_category") }}
     </div>
 
-    <div class="form-group" id="elite_category_div" style="display: none;">
-        {{ form.elite_category.label(class="form-label") }}
-        {{ form.elite_category(class="form-control", id="elite_category") }}
-    </div>
-
-    <div class="form-group" id="academy_category_div" style="display: none;">
-        {{ form.academy_category.label(class="form-label") }}
-        {{ form.academy_category(class="form-control", id="academy_category") }}
-    </div>
-
     <div id="players_div" style="display: none;">
         <div class="form-group">
             {{ form.player1.label(class="form-label") }}
-            {{ form.player1(class="form-control", id="player1", value=current_user.username) }}
+            {{ form.player1(class="form-control", id="player1") }}
         </div>
         <div class="form-group">
             {{ form.player1_is_member.label(class="form-check-label") }}
@@ -56,19 +51,19 @@
             {{ form.player2_is_member.label(class="form-check-label") }}
             {{ form.player2_is_member(class="form-check-input", id="player2_is_member") }}
         </div>
-        <div class="form-group" id="player3_div" style="display: none;">
+        <div class="form-group">
             {{ form.player3.label(class="form-label") }}
             {{ form.player3(class="form-control", id="player3") }}
         </div>
-        <div class="form-group" id="player3_is_member_div" style="display: none;">
+        <div class="form-group">
             {{ form.player3_is_member.label(class="form-check-label") }}
             {{ form.player3_is_member(class="form-check-input", id="player3_is_member") }}
         </div>
-        <div class="form-group" id="player4_div" style="display: none;">
+        <div class="form-group">
             {{ form.player4.label(class="form-label") }}
             {{ form.player4(class="form-control", id="player4") }}
         </div>
-        <div class="form-group" id="player4_is_member_div" style="display: none;">
+        <div class="form-group">
             {{ form.player4_is_member.label(class="form-check-label") }}
             {{ form.player4_is_member(class="form-check-input", id="player4_is_member") }}
         </div>
@@ -79,9 +74,14 @@
         {{ form.trainer(class="form-control", id="trainer") }}
     </div>
 
-    <div class="form-group">
-        {{ form.court_id.label(class="form-label") }}
-        {{ form.court_id(class="form-control", id="court_id") }}
+    <div class="form-group" id="elite_category_div" style="display: none;">
+        {{ form.elite_category.label(class="form-label") }}
+        {{ form.elite_category(class="form-control", id="elite_category") }}
+    </div>
+
+    <div class="form-group" id="academy_category_div" style="display: none;">
+        {{ form.academy_category.label(class="form-label") }}
+        {{ form.academy_category(class="form-control", id="academy_category") }}
     </div>
 
     <div class="form-group">
@@ -123,21 +123,28 @@ document.addEventListener('DOMContentLoaded', function() {
             .forEach(div => div.style.display = 'none');
         
         // Show relevant fields based on use type
-        if (useType === 'amistoso' || useType === 'liga') {
-            gameTypeDiv.style.display = 'block';
-            playersDiv.style.display = 'block';
-            if (useType === 'liga') {
-                leagueCategoryDiv.style.display = 'block';
-            }
-        } else if (useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal') {
-            playersDiv.style.display = 'block';
-            trainerDiv.style.display = 'block';
-        } else if (useType === 'elite') {
-            eliteCategoryDiv.style.display = 'block';
-            trainerDiv.style.display = 'block';
-        } else if (useType === 'academia_interna') {
-            academyCategoryDiv.style.display = 'block';
-            trainerDiv.style.display = 'block';
+        switch(useType) {
+            case 'amistoso':
+            case 'liga':
+                gameTypeDiv.style.display = 'block';
+                playersDiv.style.display = 'block';
+                if (useType === 'liga') {
+                    leagueCategoryDiv.style.display = 'block';
+                }
+                break;
+            case 'entrenamiento_individual':
+            case 'entrenamiento_grupal':
+                playersDiv.style.display = 'block';
+                trainerDiv.style.display = 'block';
+                break;
+            case 'elite':
+                eliteCategoryDiv.style.display = 'block';
+                trainerDiv.style.display = 'block';
+                break;
+            case 'academia_interna':
+                academyCategoryDiv.style.display = 'block';
+                trainerDiv.style.display = 'block';
+                break;
         }
 
         updateAvailableCourts();
@@ -163,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => console.error('Error:', error));
         } else {
-            courtSelect.innerHTML = '<option value="">Completa los campos anteriores</option>';
+            courtSelect.innerHTML = '<option value="">Completa fecha, hora y tipo de uso</option>';
             courtSelect.disabled = true;
         }
     }
