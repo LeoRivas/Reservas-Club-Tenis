@@ -3,7 +3,7 @@
 <h1>Reservar Cancha</h1>
 <form method="POST" action="{{ url_for('reserve') }}">
     {{ form.hidden_tag() }}
-    
+
     <div class="form-group">
         {{ form.date.label(class="form-label") }}
         {{ form.date(class="form-control", id="date") }}
@@ -19,31 +19,62 @@
         {{ form.use_type(class="form-control", id="use_type") }}
     </div>
 
-    <div id="game_type_div" class="form-group" style="display: none;">
+    <div class="form-group" id="game_type_div" style="display: none;">
         {{ form.game_type.label(class="form-label") }}
         {{ form.game_type(class="form-control", id="game_type") }}
     </div>
 
-    <div id="league_category_div" class="form-group" style="display: none;">
+    <div class="form-group" id="league_category_div" style="display: none;">
         {{ form.league_category.label(class="form-label") }}
         {{ form.league_category(class="form-control", id="league_category") }}
     </div>
 
-    <div id="elite_category_div" class="form-group" style="display: none;">
+    <div class="form-group" id="elite_category_div" style="display: none;">
         {{ form.elite_category.label(class="form-label") }}
         {{ form.elite_category(class="form-control", id="elite_category") }}
     </div>
 
-    <div id="academy_category_div" class="form-group" style="display: none;">
+    <div class="form-group" id="academy_category_div" style="display: none;">
         {{ form.academy_category.label(class="form-label") }}
         {{ form.academy_category(class="form-control", id="academy_category") }}
     </div>
 
     <div id="players_div" style="display: none;">
-        <!-- Player fields here -->
+        <div class="form-group">
+            {{ form.player1.label(class="form-label") }}
+            {{ form.player1(class="form-control", id="player1", value=current_user.username) }}
+        </div>
+        <div class="form-group">
+            {{ form.player1_is_member.label(class="form-check-label") }}
+            {{ form.player1_is_member(class="form-check-input", id="player1_is_member") }}
+        </div>
+        <div class="form-group">
+            {{ form.player2.label(class="form-label") }}
+            {{ form.player2(class="form-control", id="player2") }}
+        </div>
+        <div class="form-group">
+            {{ form.player2_is_member.label(class="form-check-label") }}
+            {{ form.player2_is_member(class="form-check-input", id="player2_is_member") }}
+        </div>
+        <div class="form-group" id="player3_div" style="display: none;">
+            {{ form.player3.label(class="form-label") }}
+            {{ form.player3(class="form-control", id="player3") }}
+        </div>
+        <div class="form-group" id="player3_is_member_div" style="display: none;">
+            {{ form.player3_is_member.label(class="form-check-label") }}
+            {{ form.player3_is_member(class="form-check-input", id="player3_is_member") }}
+        </div>
+        <div class="form-group" id="player4_div" style="display: none;">
+            {{ form.player4.label(class="form-label") }}
+            {{ form.player4(class="form-control", id="player4") }}
+        </div>
+        <div class="form-group" id="player4_is_member_div" style="display: none;">
+            {{ form.player4_is_member.label(class="form-check-label") }}
+            {{ form.player4_is_member(class="form-check-input", id="player4_is_member") }}
+        </div>
     </div>
 
-    <div id="trainer_div" class="form-group" style="display: none;">
+    <div class="form-group" id="trainer_div" style="display: none;">
         {{ form.trainer.label(class="form-label") }}
         {{ form.trainer(class="form-control", id="trainer") }}
     </div>
@@ -72,25 +103,26 @@
 </form>
 
 <script>
-    // JavaScript to handle dynamic field updates
-    document.getElementById('use_type').addEventListener('change', function() {
-        var useType = this.value;
-        var gameTypeDiv = document.getElementById('game_type_div');
-        var leagueCategoryDiv = document.getElementById('league_category_div');
-        var eliteCategoryDiv = document.getElementById('elite_category_div');
-        var academyCategoryDiv = document.getElementById('academy_category_div');
-        var playersDiv = document.getElementById('players_div');
-        var trainerDiv = document.getElementById('trainer_div');
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('date');
+    const startTimeInput = document.getElementById('start_time');
+    const useTypeInput = document.getElementById('use_type');
+    const courtSelect = document.getElementById('court_id');
+    const gameTypeDiv = document.getElementById('game_type_div');
+    const leagueCategoryDiv = document.getElementById('league_category_div');
+    const eliteCategoryDiv = document.getElementById('elite_category_div');
+    const academyCategoryDiv = document.getElementById('academy_category_div');
+    const playersDiv = document.getElementById('players_div');
+    const trainerDiv = document.getElementById('trainer_div');
 
-        // Hide all divs initially
-        gameTypeDiv.style.display = 'none';
-        leagueCategoryDiv.style.display = 'none';
-        eliteCategoryDiv.style.display = 'none';
-        academyCategoryDiv.style.display = 'none';
-        playersDiv.style.display = 'none';
-        trainerDiv.style.display = 'none';
-
-        // Show relevant divs based on use type
+    function updateFields() {
+        const useType = useTypeInput.value;
+        
+        // Hide all optional fields initially
+        [gameTypeDiv, leagueCategoryDiv, eliteCategoryDiv, academyCategoryDiv, playersDiv, trainerDiv]
+            .forEach(div => div.style.display = 'none');
+        
+        // Show relevant fields based on use type
         if (useType === 'amistoso' || useType === 'liga') {
             gameTypeDiv.style.display = 'block';
             playersDiv.style.display = 'block';
@@ -98,8 +130,8 @@
                 leagueCategoryDiv.style.display = 'block';
             }
         } else if (useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal') {
-            trainerDiv.style.display = 'block';
             playersDiv.style.display = 'block';
+            trainerDiv.style.display = 'block';
         } else if (useType === 'elite') {
             eliteCategoryDiv.style.display = 'block';
             trainerDiv.style.display = 'block';
@@ -107,33 +139,40 @@
             academyCategoryDiv.style.display = 'block';
             trainerDiv.style.display = 'block';
         }
-    });
 
-    // Add event listeners for date, start_time, and use_type to update available courts
-    document.getElementById('date').addEventListener('change', updateAvailableCourts);
-    document.getElementById('start_time').addEventListener('change', updateAvailableCourts);
-    document.getElementById('use_type').addEventListener('change', updateAvailableCourts);
+        updateAvailableCourts();
+    }
 
     function updateAvailableCourts() {
-        var date = document.getElementById('date').value;
-        var startTime = document.getElementById('start_time').value;
-        var useType = document.getElementById('use_type').value;
+        const date = dateInput.value;
+        const startTime = startTimeInput.value;
+        const useType = useTypeInput.value;
 
         if (date && startTime && useType) {
             fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}`)
                 .then(response => response.json())
                 .then(data => {
-                    var courtSelect = document.getElementById('court_id');
-                    courtSelect.innerHTML = '';
+                    courtSelect.innerHTML = '<option value="">Selecciona una cancha</option>';
                     data.forEach(court => {
-                        var option = document.createElement('option');
+                        const option = document.createElement('option');
                         option.value = court.id;
                         option.textContent = court.name;
                         courtSelect.appendChild(option);
                     });
                     courtSelect.disabled = false;
-                });
+                })
+                .catch(error => console.error('Error:', error));
+        } else {
+            courtSelect.innerHTML = '<option value="">Completa los campos anteriores</option>';
+            courtSelect.disabled = true;
         }
     }
+
+    [dateInput, startTimeInput, useTypeInput].forEach(input => 
+        input.addEventListener('change', updateFields)
+    );
+
+    updateFields();
+});
 </script>
 {% endblock %}
