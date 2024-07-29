@@ -71,7 +71,7 @@
     </div>
     <div class="form-group">
         {{ form.court_id.label(class="form-label") }}
-        <select id="court_id" name="court_id" class="form-control" disabled>
+        <select id="court_id" name="court_id" class="form-control">
             <option value="">Selecciona una cancha</option>
         </select>
     </div>
@@ -119,12 +119,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(courts => {
                     console.log('Canchas recibidas:', courts);  // Agregar esta línea para depuración
                     courtField.innerHTML = '';
-                    courts.forEach(court => {
+                    if (courts.length === 0) {
                         var option = document.createElement('option');
-                        option.value = court.id;
-                        option.textContent = court.name;
+                        option.value = '';
+                        option.textContent = 'No hay canchas disponibles';
                         courtField.appendChild(option);
-                    });
+                    } else {
+                        courts.forEach(court => {
+                            var option = document.createElement('option');
+                            option.value = court.id;
+                            option.textContent = court.name;
+                            courtField.appendChild(option);
+                        });
+                    }
                 })
                 .catch(error => {
                     console.error('Error al obtener las canchas:', error);
