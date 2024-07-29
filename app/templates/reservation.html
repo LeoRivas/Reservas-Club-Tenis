@@ -80,10 +80,8 @@
     </div>
 
     <div class="form-group">
-        {{ form.court_id.label(class="form-label") }}
-        <select id="court_id" name="court_id" class="form-control">
-            <option value="">Selecciona una hora primero</option>
-        </select>
+                {{ form.court_id.label }}
+                {{ form.court_id(class="form-control") }}
     </div>
 
     <div class="form-group">
@@ -189,15 +187,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function updateAvailableCourts() {
+    document.addEventListener('DOMContentLoaded', function () {
+    const dateInput = document.getElementById('date');
+    const startTimeInput = document.getElementById('start_time');
+    const useTypeInput = document.getElementById('use_type');
+    const courtSelect = document.getElementById('court_id');
+    
+    function updateFields() {
         const date = dateInput.value;
         const startTime = startTimeInput.value;
         const useType = useTypeInput.value;
-
+        
         fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}`)
             .then(response => response.json())
             .then(data => {
-                const selectedCourt = courtSelect.value; // Guardar la selección actual
+                const selectedCourt = courtSelect.value;
                 courtSelect.innerHTML = '<option value="">Selecciona una cancha</option>';
                 data.forEach(court => {
                     const option = document.createElement('option');
@@ -205,23 +209,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.textContent = court.name;
                     courtSelect.appendChild(option);
                 });
-                courtSelect.value = selectedCourt; // Restaurar la selección anterior
+                courtSelect.value = selectedCourt;
                 courtSelect.disabled = false;
             })
             .catch(error => console.error('Error:', error));
     }
 
-    // Event listeners
     dateInput.addEventListener('change', updateFields);
     startTimeInput.addEventListener('change', updateFields);
     useTypeInput.addEventListener('change', updateFields);
-    gameTypeSelect.addEventListener('change', checkFieldsAndUpdateCourts);
-    leagueCategorySelect.addEventListener('change', checkFieldsAndUpdateCourts);
-    eliteCategorySelect.addEventListener('change', checkFieldsAndUpdateCourts);
-    academyCategorySelect.addEventListener('change', checkFieldsAndUpdateCourts);
 
-    // Inicializar campos
     updateFields();
+
 });
 </script>
 {% endblock %}
