@@ -147,7 +147,6 @@ def get_available_courts():
 
     return jsonify(court_data)
 
-
 @app.route('/edit_reservation/<int:reservation_id>', methods=['GET', 'POST'])
 @login_required
 def edit_reservation(reservation_id):
