@@ -40,6 +40,7 @@
             {{ form.player1_is_member.label(class="form-check-label") }}
             {{ form.player1_is_member(class="form-check-input") }}
         </div>
+        
         <div class="form-group" id="player2_div">
             {{ form.player2.label(class="form-label") }}
             {{ form.player2(class="form-control") }}
@@ -102,6 +103,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var academyCategoryDiv = document.getElementById('academy_category_div');
     var playersDiv = document.getElementById('players_div');
     var trainerDiv = document.getElementById('trainer_div');
+    var player2Div = document.getElementById('player2_div');
+    var player2IsMemberDiv = document.getElementById('player2_is_member_div');
     var player3Div = document.getElementById('player3_div');
     var player3IsMemberDiv = document.getElementById('player3_is_member_div');
     var player4Div = document.getElementById('player4_div');
@@ -146,16 +149,34 @@ document.addEventListener('DOMContentLoaded', function() {
         leagueCategoryDiv.style.display = useType === 'liga' ? 'block' : 'none';
         eliteCategoryDiv.style.display = useType === 'elite' ? 'block' : 'none';
         academyCategoryDiv.style.display = useType === 'academia_interna' ? 'block' : 'none';
-        playersDiv.style.display = (useType === 'amistoso' || useType === 'liga') ? 'block' : 'none';
+        playersDiv.style.display = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal') ? 'block' : 'none';
         trainerDiv.style.display = (useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal') ? 'block' : 'none';
 
         if (useType === 'amistoso' || useType === 'liga') {
             var gameType = gameTypeField.value;
+            player2Div.style.display = 'block';
+            player2IsMemberDiv.style.display = 'block';
             player3Div.style.display = gameType === 'dobles' ? 'block' : 'none';
             player3IsMemberDiv.style.display = gameType === 'dobles' ? 'block' : 'none';
             player4Div.style.display = gameType === 'dobles' ? 'block' : 'none';
             player4IsMemberDiv.style.display = gameType === 'dobles' ? 'block' : 'none';
+        } else if (useType === 'entrenamiento_individual') {
+            player2Div.style.display = 'none';
+            player2IsMemberDiv.style.display = 'none';
+            player3Div.style.display = 'none';
+            player3IsMemberDiv.style.display = 'none';
+            player4Div.style.display = 'none';
+            player4IsMemberDiv.style.display = 'none';
+        } else if (useType === 'entrenamiento_grupal') {
+            player2Div.style.display = 'block';
+            player2IsMemberDiv.style.display = 'block';
+            player3Div.style.display = 'block';
+            player3IsMemberDiv.style.display = 'block';
+            player4Div.style.display = 'block';
+            player4IsMemberDiv.style.display = 'block';
         } else {
+            player2Div.style.display = 'none';
+            player2IsMemberDiv.style.display = 'none';
             player3Div.style.display = 'none';
             player3IsMemberDiv.style.display = 'none';
             player4Div.style.display = 'none';
