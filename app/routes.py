@@ -105,10 +105,7 @@ def get_available_courts_route():
         if not all([date_str, start_time_str, use_type]):
             raise ValueError("Faltan parámetros requeridos")
         
-        date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        start_time = datetime.strptime(start_time_str, '%H:%M').time()
-        
-        available_courts = get_available_courts(date, start_time, use_type)
+        available_courts = get_available_courts(date_str, start_time_str, use_type)
         
         court_data = [{'id': court.id, 'name': court.name} for court in available_courts]
         app.logger.info(f"Canchas disponibles: {court_data}")
@@ -116,6 +113,7 @@ def get_available_courts_route():
     except Exception as e:
         app.logger.error(f"Error en get_available_courts: {str(e)}")
         return jsonify({"error": "Hubo un error al obtener las canchas disponibles"}), 400
+
 
 
 @app.errorhandler(Exception)

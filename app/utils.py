@@ -33,7 +33,6 @@ def get_available_courts(date_str, start_time_str, use_type):
 
     return available_courts
 
-
 def get_available_times(date, court_id, use_type):
     weekday_hours = [(8, 30), (23, 0)]
     saturday_hours = [(8, 30), (18, 0)]
