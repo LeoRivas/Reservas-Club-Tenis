@@ -195,11 +195,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const date = dateInput.value;
         const startTime = startTimeInput.value;
         const useType = useTypeInput.value;
-        const selectedCourt = courtSelect.value; // Guardar la selección actual
+        const courtId = courtSelect.value;
 
-        fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}`)
+        fetch(`/get_available_courts?date=${date}&start_time=${startTime}&use_type=${useType}&court_id=${courtId}`)
             .then(response => response.json())
             .then(data => {
+                const selectedCourt = courtSelect.value; // Guardar la selección actual
                 courtSelect.innerHTML = '<option value="">Selecciona una cancha</option>';
                 data.forEach(court => {
                     const option = document.createElement('option');
@@ -217,11 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
     dateInput.addEventListener('change', updateFields);
     startTimeInput.addEventListener('change', updateFields);
     useTypeInput.addEventListener('change', updateFields);
-    // Eliminar el listener para gameTypeSelect
-    // gameTypeSelect.addEventListener('change', checkFieldsAndUpdateCourts);
-    leagueCategorySelect.addEventListener('change', checkFieldsAndUpdateCourts);
-    eliteCategorySelect.addEventListener('change', checkFieldsAndUpdateCourts);
-    academyCategorySelect.addEventListener('change', checkFieldsAndUpdateCourts);
+    checkFieldsAndUpdateCourts();
 
     // Inicializar campos
     updateFields();
