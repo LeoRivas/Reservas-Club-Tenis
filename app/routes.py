@@ -6,7 +6,6 @@ from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
 from datetime import datetime, timedelta, time
 from sqlalchemy import func
-import csv
 from io import StringIO
 from app.utils import get_available_times
 from app import utils
