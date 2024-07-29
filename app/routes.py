@@ -54,50 +54,64 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/reserve', methods=['GET', 'POST'])
+@app.route('/reserve', methods=['POST'])
 @login_required
 def reserve():
     form = ReservationForm()
     if form.validate_on_submit():
-        print(form.errors)  # Agregar para ver errores de validación
+        # Extraer datos del formulario
+        date = form.date.data
+        start_time = form.start_time.data
+        use_type = form.use_type.data
+        court_id = form.court_id.data
+        is_paid = form.is_paid.data
+        payment_amount = form.payment_amount.data
+        comments = form.comments.data
+
+        # Datos adicionales dependiendo del tipo de uso
+        player1 = form.player1.data
+        player1_is_member = form.player1_is_member.data
+        player2 = form.player2.data
+        player2_is_member = form.player2_is_member.data
+        player3 = form.player3.data
+        player3_is_member = form.player3_is_member.data
+        player4 = form.player4.data
+        player4_is_member = form.player4_is_member.data
+        trainer = form.trainer.data
+
         try:
+            # Crear nueva reserva
             reservation = Reservation(
-                user_id=current_user.id,
-                date=form.date.data,
-                start_time=form.start_time.data,
-                end_time=(datetime.combine(form.date.data, form.start_time.data) + timedelta(minutes=90)).time(),
-                court_id=form.court_id.data,
-                use_type=form.use_type.data,
-                game_type=form.game_type.data,
-                league_category=form.league_category.data,
-                elite_category=form.elite_category.data,
-                academy_category=form.academy_category.data,
-                player1=form.player1.data,
-                player1_is_member=form.player1_is_member.data,
-                player2=form.player2.data,
-                player2_is_member=form.player2_is_member.data,
-                player3=form.player3.data,
-                player3_is_member=form.player3_is_member.data,
-                player4=form.player4.data,
-                player4_is_member=form.player4_is_member.data,
-                trainer=form.trainer.data,
-                is_paid=form.is_paid.data,
-                payment_amount=form.payment_amount.data,
-                comments=form.comments.data
+                date=date,
+                start_time=start_time,
+                use_type=use_type,
+                court_id=court_id,
+                is_paid=is_paid,
+                payment_amount=payment_amount,
+                comments=comments,
+                player1=player1,
+                player1_is_member=player1_is_member,
+                player2=player2,
+                player2_is_member=player2_is_member,
+                player3=player3,
+                player3_is_member=player3_is_member,
+                player4=player4,
+                player4_is_member=player4_is_member,
+                trainer=trainer,
+                user_id=current_user.id
             )
             db.session.add(reservation)
             db.session.commit()
-            flash(f'Hola {current_user.username}, ya hemos hecho tu reserva en la cancha {reservation.court.name} con Hora de Inicio {reservation.start_time} y Hora de Término {reservation.end_time}. Recuerda llegar 10 minutos antes para que puedas comenzar a la hora, ¡te esperamos!', 'success')
-            return redirect(url_for('index'))
+            flash('Reserva creada exitosamente.', 'success')
+            return redirect(url_for('calendar'))
         except Exception as e:
             db.session.rollback()
-            print(f"Error: {e}")  # Agregar para ver errores
-            flash('Ha ocurrido un error al hacer la reserva. Por favor, intenta nuevamente.', 'danger')
+            flash(f'Error al crear la reserva: {str(e)}', 'danger')
+            return redirect(url_for('reserve'))
     else:
-        form.date.data = datetime.today().date()
-        form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(datetime.today().date(), None, None)]
-        form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
-    return render_template('reservation.html', form=form)
+        flash('Error en los datos del formulario. Por favor, revise e intente nuevamente.', 'danger')
+        return redirect(url_for('reserve'))
+
 
 
 @app.route('/get_available_courts', methods=['GET'])
