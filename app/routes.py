@@ -358,7 +358,6 @@ def export_reservations():
     output.headers["Content-type"] = "text/csv"
     return output
 
-
 @app.route('/delete_reservation/<int:reservation_id>', methods=['POST'])
 @login_required
 def delete_reservation(reservation_id):
