@@ -2,10 +2,6 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, login
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-
-db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,8 +27,6 @@ class Court(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
     reservations = db.relationship('Reservation', backref='court', lazy=True)
-
-
 
 
 class Reservation(db.Model):
@@ -62,4 +56,3 @@ class Reservation(db.Model):
 
     def __repr__(self):
         return f'<Reservation {self.id}>'
-
