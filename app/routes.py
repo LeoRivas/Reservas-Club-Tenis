@@ -132,6 +132,11 @@ def edit_reservation(reservation_id):
 @login_required
 def reserve():
     form = ReservationForm()
+
+    # Inicializar las opciones del campo start_time y court_id
+    form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(form.date.data if form.date.data else datetime.today().date(), None, None)]
+    form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+
     if form.validate_on_submit():
         print("Validación del formulario exitosa")
         print("Datos del formulario:", form.data)  # Imprime todos los datos del formulario
@@ -140,7 +145,7 @@ def reserve():
                 user_id=current_user.id,
                 date=form.date.data,
                 start_time=form.start_time.data,
-                end_time=(datetime.combine(form.date.data, form.start_time.data) + timedelta(minutes=90)).time(),
+                end_time=(datetime.combine(form.date.data, datetime.strptime(form.start_time.data, "%H:%M").time()) + timedelta(minutes=90)).time(),
                 court_id=form.court_id.data,
                 use_type=form.use_type.data,
                 game_type=form.game_type.data,
@@ -170,10 +175,10 @@ def reserve():
             flash('Ha ocurrido un error al hacer la reserva. Por favor, intenta nuevamente.', 'danger')
     else:
         print("Errores de validación del formulario:", form.errors)  # Imprimir los errores de validación
-        form.date.data = datetime.today().date()
-        form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(datetime.today().date(), None, None)]
-        form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+
     return render_template('reservation.html', form=form)
+
+
 
 
 
