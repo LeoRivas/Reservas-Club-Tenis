@@ -179,6 +179,13 @@ def edit_reservation_user(reservation_id):
         return redirect(url_for('user_reservations'))
     return render_template('edit_reservation_user.html', form=form, reservation=reservation)
 
+@app.route('/my_reservations', methods=['GET'])
+@login_required
+def my_reservations():
+    reservations = Reservation.query.filter_by(user_id=current_user.id).all()
+    return render_template('user_reservations.html', reservations=reservations)
+
+
 
 @app.route('/reserve', methods=['GET', 'POST'])
 @login_required
