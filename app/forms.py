@@ -6,32 +6,6 @@ from app.utils import get_available_times
 from flask_login import current_user
 from datetime import datetime
 
-class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember Me')
-    submit = SubmitField('Sign In')
-
-class RegistrationForm(FlaskForm):
-    is_member = BooleanField('¿Eres socio?', default=False)
-    username = StringField('Nombre de Usuario', validators=[DataRequired(), Length(min=1, max=64)])
-    email = StringField('Correo electrónico', validators=[DataRequired(), Email(), Length(min=1, max=120)])
-    password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=1, max=128)])
-    password2 = PasswordField('Repetir Contraseña', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Registrar')
-
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user is not None:
-            raise ValidationError('Please use a different username.')
-
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user is not None:
-            raise ValidationError('Please use a different email address.')
-
-
-
 class ReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])
     start_time = SelectField('Hora de Inicio', choices=[], validators=[DataRequired()])
@@ -81,9 +55,29 @@ class ReservationForm(FlaskForm):
     comments = TextAreaField('Comentarios')
     submit = SubmitField('Reservar')
 
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Sign In')
 
+class RegistrationForm(FlaskForm):
+    is_member = BooleanField('¿Eres socio?', default=False)
+    username = StringField('Nombre de Usuario', validators=[DataRequired(), Length(min=1, max=64)])
+    email = StringField('Correo electrónico', validators=[DataRequired(), Email(), Length(min=1, max=120)])
+    password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=1, max=128)])
+    password2 = PasswordField('Repetir Contraseña', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Registrar')
 
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different username.')
 
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different email address.')
 
 class EditReservationForm(FlaskForm):
     date = DateField('Fecha', validators=[DataRequired()])
@@ -99,7 +93,7 @@ class EditReservationForm(FlaskForm):
     ], validators=[DataRequired()])
     game_type = SelectField('Tipo de juego', choices=[
         ('singles', 'Singles'),
-        ('doubles', 'Dobles')
+        ('dobles', 'Dobles')
     ], validators=[Optional()])
     league_category = SelectField('Categoría de liga', choices=[
         ('primera', 'Primera'),
@@ -133,15 +127,23 @@ class EditReservationForm(FlaskForm):
     payment_amount = IntegerField('Monto de Pago', validators=[Optional(), NumberRange(min=0)])
     comments = TextAreaField('Comentarios')
     submit = SubmitField('Guardar')
+
 class DateRangeForm(FlaskForm):
     start_date = DateField('Fecha de Inicio', validators=[DataRequired()])
     end_date = DateField('Fecha de Término', validators=[DataRequired()])
     submit = SubmitField('Buscar')
 
 class FormGeneral(FlaskForm):
-    start_date = DateField('Fecha de Inicio', validators=[DataRequired()])
-    end_date = DateField('Fecha de Término', validators=[DataRequired()])
-    date = DateField('Fecha', validators=[DataRequired()])
+    use_type = SelectField('Tipo de uso', choices=[
+        ('amistoso', 'Amistoso'),
+        ('liga', 'Liga'),
+        ('entrenamiento_individual', 'Entrenamiento Individual'),
+        ('entrenamiento_grupal', 'Entrenamiento Grupal'),
+        ('elite', 'Elite'),
+        ('academia_interna', 'Academia Interna')
+    ], validators=[DataRequired()])
+    start_date = DateField('Fecha de inicio', validators=[DataRequired()])
+    end_date = DateField('Fecha de término', validators=[DataRequired()])
     submit = SubmitField('Guardar')
 
 class FormIngresos(FlaskForm):
@@ -150,5 +152,15 @@ class FormIngresos(FlaskForm):
     submit = SubmitField('Buscar')
 
 class FormNoPagadas(FlaskForm):
-    date = DateField('Fecha', validators=[DataRequired()])
-    submit = SubmitField('Guardar')
+    start_date = DateField('Fecha de inicio', validators=[DataRequired()])
+    end_date = DateField('Fecha de término', validators=[DataRequired()])
+    use_type = SelectField('Tipo de uso', choices=[
+        ('todos', 'Todos'),
+        ('amistoso', 'Amistoso'),
+        ('liga', 'Liga'),
+        ('entrenamiento_individual', 'Entrenamiento Individual'),
+        ('entrenamiento_grupal', 'Entrenamiento Grupal'),
+        ('elite', 'Elite'),
+        ('academia_interna', 'Academia Interna')
+    ], validators=[Optional()])
+    submit = SubmitField('Filtrar')

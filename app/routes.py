@@ -89,15 +89,20 @@ def handle_exception(e):
 def edit_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     form = EditReservationForm(obj=reservation)
+    
+    # Inicializar las opciones del campo start_time y court_id
+    form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(reservation.date, None, None)]
+    form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+
     if form.validate_on_submit():
         start_time = datetime.strptime(form.start_time.data, "%H:%M").time()
         use_type = form.use_type.data
 
         # Calcular la hora de término basada en el tipo de uso
         if use_type in ['amistoso', 'liga']:
-            end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=90)).time()
+            end_time = (datetime.combine(reservation.date, start_time) + timedelta(minutes=90)).time()
         else:
-            end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=60)).time()
+            end_time = (datetime.combine(reservation.date, start_time) + timedelta(minutes=60)).time()
 
         reservation.court_id = form.court_id.data
         reservation.date = form.date.data
@@ -123,10 +128,57 @@ def edit_reservation(reservation_id):
         db.session.commit()
         flash('Reserva actualizada con éxito.')
         return redirect(url_for('admin_dashboard'))
-    else:
-        form.date.data = reservation.date
-        form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(reservation.date, None, None)]
     return render_template('edit_reservation.html', form=form, reservation=reservation)
+
+@app.route('/edit_reservation_user/<int:reservation_id>', methods=['GET', 'POST'])
+@login_required
+def edit_reservation_user(reservation_id):
+    reservation = Reservation.query.get_or_404(reservation_id)
+    if reservation.user_id != current_user.id:
+        flash('No tienes permiso para editar esta reserva.')
+        return redirect(url_for('index'))
+    form = EditReservationForm(obj=reservation)
+
+    # Inicializar las opciones del campo start_time y court_id
+    form.start_time.choices = [(t.strftime("%H:%M"), t.strftime("%H:%M")) for t in get_available_times(reservation.date, None, None)]
+    form.court_id.choices = [(court.id, court.name) for court in Court.query.all()]
+
+    if form.validate_on_submit():
+        start_time = datetime.strptime(form.start_time.data, "%H:%M").time()
+        use_type = form.use_type.data
+
+        # Calcular la hora de término basada en el tipo de uso
+        if use_type in ['amistoso', 'liga']:
+            end_time = (datetime.combine(reservation.date, start_time) + timedelta(minutes=90)).time()
+        else:
+            end_time = (datetime.combine(reservation.date, start_time) + timedelta(minutes=60)).time()
+
+        reservation.court_id = form.court_id.data
+        reservation.date = form.date.data
+        reservation.start_time = start_time
+        reservation.end_time = end_time
+        reservation.use_type = use_type
+        reservation.game_type = form.game_type.data
+        reservation.league_category = form.league_category.data
+        reservation.player1 = form.player1.data
+        reservation.player1_is_member = form.player1_is_member.data
+        reservation.player2 = form.player2.data
+        reservation.player2_is_member = form.player2_is_member.data
+        reservation.player3 = form.player3.data
+        reservation.player3_is_member = form.player3_is_member.data
+        reservation.player4 = form.player4.data
+        reservation.player4_is_member = form.player4_is_member.data
+        reservation.trainer = form.trainer.data
+        reservation.elite_category = form.elite_category.data
+        reservation.academy_category = form.academy_category.data
+        reservation.is_paid = form.is_paid.data
+        reservation.payment_amount = form.payment_amount.data
+        reservation.comments = form.comments.data
+        db.session.commit()
+        flash('Reserva actualizada con éxito.')
+        return redirect(url_for('my_reservations'))
+    return render_template('edit_reservation_user.html', form=form, reservation=reservation)
+
 
 @app.route('/reserve', methods=['GET', 'POST'])
 @login_required
