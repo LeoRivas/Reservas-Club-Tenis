@@ -92,112 +92,110 @@
     </form>
 
     <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var dateField = document.getElementById('date');
-    var timeField = document.getElementById('start_time');
-    var useTypeField = document.getElementById('use_type');
-    var courtField = document.getElementById('court_id');
-    var gameTypeDiv = document.getElementById('game_type_div');
-    var leagueCategoryDiv = document.getElementById('league_category_div');
-    var eliteCategoryDiv = document.getElementById('elite_category_div');
-    var academyCategoryDiv = document.getElementById('academy_category_div');
-    var playersDiv = document.getElementById('players_div');
-    var trainerDiv = document.getElementById('trainer_div');
-    var player2Div = document.getElementById('player2_div');
-    var player2IsMemberDiv = document.getElementById('player2_is_member_div');
-    var player3Div = document.getElementById('player3_div');
-    var player3IsMemberDiv = document.getElementById('player3_is_member_div');
-    var player4Div = document.getElementById('player4_div');
-    var player4IsMemberDiv = document.getElementById('player4_is_member_div');
-    var gameTypeField = document.getElementById('game_type');
+    document.addEventListener('DOMContentLoaded', function() {
+        var dateField = document.getElementById('date');
+        var timeField = document.getElementById('start_time');
+        var useTypeField = document.getElementById('use_type');
+        var courtField = document.getElementById('court_id');
+        var gameTypeDiv = document.getElementById('game_type_div');
+        var leagueCategoryDiv = document.getElementById('league_category_div');
+        var eliteCategoryDiv = document.getElementById('elite_category_div');
+        var academyCategoryDiv = document.getElementById('academy_category_div');
+        var playersDiv = document.getElementById('players_div');
+        var trainerDiv = document.getElementById('trainer_div');
+        var player2Div = document.getElementById('player2_div');
+        var player2IsMemberDiv = document.getElementById('player2_is_member_div');
+        var player3Div = document.getElementById('player3_div');
+        var player3IsMemberDiv = document.getElementById('player3_is_member_div');
+        var player4Div = document.getElementById('player4_div');
+        var player4IsMemberDiv = document.getElementById('player4_is_member_div');
+        var gameTypeField = document.getElementById('game_type');
 
-    function updateAvailableCourts() {
-        var date = dateField.value;
-        var time = timeField.value;
-        var useType = useTypeField.value;
+        function updateAvailableCourts() {
+            var date = dateField.value;
+            var time = timeField.value;
+            var useType = useTypeField.value;
 
-        if (date && time && useType) {
-            fetch(`/get_available_courts?date=${date}&start_time=${time}&use_type=${useType}`)
-                .then(response => response.json())
-                .then(courts => {
-                    console.log('Canchas recibidas:', courts);  // Agregar esta línea para depuración
-                    courtField.innerHTML = '';
-                    if (courts.length === 0) {
-                        var option = document.createElement('option');
-                        option.value = '';
-                        option.textContent = 'No hay canchas disponibles';
-                        courtField.appendChild(option);
-                    } else {
-                        courts.forEach(court => {
+            if (date && time && useType) {
+                fetch(`/get_available_courts?date=${date}&start_time=${time}&use_type=${useType}`)
+                    .then(response => response.json())
+                    .then(courts => {
+                        console.log('Canchas recibidas:', courts);  // Agregar esta línea para depuración
+                        courtField.innerHTML = '';
+                        if (courts.length === 0) {
                             var option = document.createElement('option');
-                            option.value = court.id;
-                            option.textContent = court.name;
+                            option.value = '';
+                            option.textContent = 'No hay canchas disponibles';
                             courtField.appendChild(option);
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al obtener las canchas:', error);
-                });
+                        } else {
+                            courts.forEach(court => {
+                                var option = document.createElement('option');
+                                option.value = court.id;
+                                option.textContent = court.name;
+                                courtField.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener las canchas:', error);
+                    });
+            }
         }
-    }
 
-    function updateFormFields() {
-        var useType = useTypeField.value;
-        console.log('Tipo de uso seleccionado:', useType);  // Agregar para depuración
+        function updateFormFields() {
+            var useType = useTypeField.value;
+            console.log('Tipo de uso seleccionado:', useType);  // Agregar para depuración
 
-        gameTypeDiv.style.display = (useType === 'amistoso' || useType === 'liga') ? 'block' : 'none';
-        leagueCategoryDiv.style.display = useType === 'liga' ? 'block' : 'none';
-        eliteCategoryDiv.style.display = useType === 'elite' ? 'block' : 'none';
-        academyCategoryDiv.style.display = useType === 'academia_interna' ? 'block' : 'none';
-        playersDiv.style.display = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal') ? 'block' : 'none';
-        trainerDiv.style.display = (useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal') ? 'block' : 'none';
+            gameTypeDiv.style.display = (useType === 'amistoso' || useType === 'liga') ? 'block' : 'none';
+            leagueCategoryDiv.style.display = useType === 'liga' ? 'block' : 'none';
+            eliteCategoryDiv.style.display = useType === 'elite' ? 'block' : 'none';
+            academyCategoryDiv.style.display = useType === 'academia_interna' ? 'block' : 'none';
+            playersDiv.style.display = (useType === 'amistoso' || useType === 'liga' || useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal') ? 'block' : 'none';
+            trainerDiv.style.display = (useType === 'entrenamiento_individual' || useType === 'entrenamiento_grupal') ? 'block' : 'none';
 
-        if (useType === 'amistoso' || useType === 'liga') {
-            var gameType = gameTypeField.value;
-            console.log('Tipo de juego seleccionado:', gameType);  // Agregar para depuración
-            player2Div.style.display = 'block';
-            player2IsMemberDiv.style.display = 'block';
-            player3Div.style.display = gameType === 'dobles' ? 'block' : 'none';
-            player3IsMemberDiv.style.display = gameType === 'dobles' ? 'block' : 'none';
-            player4Div.style.display = gameType === 'dobles' ? 'block' : 'none';
-            player4IsMemberDiv.style.display = gameType === 'dobles' ? 'block' : 'none';
-        } else if (useType === 'entrenamiento_individual') {
-            player2Div.style.display = 'none';
-            player2IsMemberDiv.style.display = 'none';
-            player3Div.style.display = 'none';
-            player3IsMemberDiv.style.display = 'none';
-            player4Div.style.display = 'none';
-            player4IsMemberDiv.style.display = 'none';
-        } else if (useType === 'entrenamiento_grupal') {
-            player2Div.style.display = 'block';
-            player2IsMemberDiv.style.display = 'block';
-            player3Div.style.display = 'block';
-            player3IsMemberDiv.style.display = 'block';
-            player4Div.style.display = 'block';
-            player4IsMemberDiv.style.display = 'block';
-        } else {
-            player2Div.style.display = 'none';
-            player2IsMemberDiv.style.display = 'none';
-            player3Div.style.display = 'none';
-            player3IsMemberDiv.style.display = 'none';
-            player4Div.style.display = 'none';
-            player4IsMemberDiv.style.display = 'none';
+            if (useType === 'amistoso' || useType === 'liga') {
+                var gameType = gameTypeField.value;
+                console.log('Tipo de juego seleccionado:', gameType);  // Agregar para depuración
+                player2Div.style.display = 'block';
+                player2IsMemberDiv.style.display = 'block';
+                player3Div.style.display = gameType === 'dobles' ? 'block' : 'none';
+                player3IsMemberDiv.style.display = gameType === 'dobles' ? 'block' : 'none';
+                player4Div.style.display = gameType === 'dobles' ? 'block' : 'none';
+                player4IsMemberDiv.style.display = gameType === 'dobles' ? 'block' : 'none';
+            } else if (useType === 'entrenamiento_individual') {
+                player2Div.style.display = 'none';
+                player2IsMemberDiv.style.display = 'none';
+                player3Div.style.display = 'none';
+                player3IsMemberDiv.style.display = 'none';
+                player4Div.style.display = 'none';
+                player4IsMemberDiv.style.display = 'none';
+            } else if (useType === 'entrenamiento_grupal') {
+                player2Div.style.display = 'block';
+                player2IsMemberDiv.style.display = 'block';
+                player3Div.style.display = 'block';
+                player3IsMemberDiv.style.display = 'block';
+                player4Div.style.display = 'block';
+                player4IsMemberDiv.style.display = 'block';
+            } else {
+                player2Div.style.display = 'none';
+                player2IsMemberDiv.style.display = 'none';
+                player3Div.style.display = 'none';
+                player3IsMemberDiv.style.display = 'none';
+                player4Div.style.display = 'none';
+                player4IsMemberDiv.style.display = 'none';
+            }
         }
-    }
 
-    dateField.addEventListener('change', updateAvailableCourts);
-    timeField.addEventListener('change', updateAvailableCourts);
-    useTypeField.addEventListener('change', function() {
-        updateAvailableCourts();
+        dateField.addEventListener('change', updateAvailableCourts);
+        timeField.addEventListener('change', updateAvailableCourts);
+        useTypeField.addEventListener('change', function() {
+            updateAvailableCourts();
+            updateFormFields();
+        });
+        gameTypeField.addEventListener('change', updateFormFields);
+
+        // Inicializar los campos del formulario
         updateFormFields();
     });
-    gameTypeField.addEventListener('change', updateFormFields);
-
-    // Inicializar los campos del formulario
-    updateFormFields();
-});
-</script>
-
+    </script>
 {% endblock %}
-
