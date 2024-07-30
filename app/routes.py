@@ -221,6 +221,7 @@ def calendar():
                            date=date.strftime('%Y-%m-%d'))
 
 
+
 @app.route('/admin_dashboard', methods=['GET', 'POST'])
 @login_required
 def admin_dashboard():
@@ -282,6 +283,7 @@ def admin_dashboard():
     )
 
 
+
 @app.route('/export_reservations', methods=['GET'])
 @login_required
 def export_reservations():
@@ -307,7 +309,6 @@ def export_reservations():
 def my_reservations():
     reservations = Reservation.query.filter_by(user_id=current_user.id).all()
     return render_template('user_reservations.html', reservations=reservations)
-
 
 @app.route('/delete_reservation/<int:reservation_id>', methods=['POST'])
 @login_required
