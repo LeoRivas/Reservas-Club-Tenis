@@ -29,9 +29,11 @@ class Court(db.Model):
     reservations = db.relationship('Reservation', backref='court', lazy=True)
 
 
+# models.py
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('reservations', lazy=True))
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
@@ -56,3 +58,4 @@ class Reservation(db.Model):
 
     def __repr__(self):
         return f'<Reservation {self.id}>'
+
