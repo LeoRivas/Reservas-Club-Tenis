@@ -176,7 +176,7 @@ def edit_reservation_user(reservation_id):
         reservation.comments = form.comments.data
         db.session.commit()
         flash('Reserva actualizada con éxito.')
-        return redirect(url_for('my_reservations'))
+        return redirect(url_for('user_reservations'))
     return render_template('edit_reservation_user.html', form=form, reservation=reservation)
 
 
