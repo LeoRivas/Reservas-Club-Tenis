@@ -171,4 +171,31 @@
                 player4IsMemberDiv.style.display = 'none';
             } else if (useType === 'entrenamiento_grupal') {
                 player2Div.style.display = 'block';
-                player2IsMember
+                player2IsMemberDiv.style.display = 'block';
+                player3Div.style.display = 'block';
+                player3IsMemberDiv.style.display = 'block';
+                player4Div.style.display = 'block';
+                player4IsMemberDiv.style.display = 'block';
+            } else {
+                player2Div.style.display = 'none';
+                player2IsMemberDiv.style.display = 'none';
+                player3Div.style.display = 'none';
+                player3IsMemberDiv.style.display = 'none';
+                player4Div.style.display = 'none';
+                player4IsMemberDiv.style.display = 'none';
+            }
+        }
+
+        dateField.addEventListener('change', updateAvailableCourts);
+        timeField.addEventListener('change', updateAvailableCourts);
+        useTypeField.addEventListener('change', function() {
+            updateAvailableCourts();
+            updateFormFields();
+        });
+        gameTypeField.addEventListener('change', updateFormFields);
+
+        // Inicializar los campos del formulario
+        updateFormFields();
+    });
+    </script>
+{% endblock %}
