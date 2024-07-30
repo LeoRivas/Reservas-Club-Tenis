@@ -179,11 +179,6 @@ def edit_reservation_user(reservation_id):
         return redirect(url_for('user_reservations'))
     return render_template('edit_reservation_user.html', form=form, reservation=reservation)
 
-@app.route('/my_reservations', methods=['GET'])
-@login_required
-def my_reservations():
-    reservations = Reservation.query.filter_by(user_id=current_user.id).all()
-    return render_template('user_reservations.html', reservations=reservations)
 
 
 
@@ -363,11 +358,6 @@ def export_reservations():
     output.headers["Content-type"] = "text/csv"
     return output
 
-@app.route('/my_reservations', methods=['GET'])
-@login_required
-def my_reservations():
-    reservations = Reservation.query.filter_by(user_id=current_user.id).all()
-    return render_template('user_reservations.html', reservations=reservations)
 
 @app.route('/delete_reservation/<int:reservation_id>', methods=['POST'])
 @login_required
